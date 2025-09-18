@@ -1,0 +1,107 @@
+# Node / JS
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-lock.yaml
+package-lock.json
+
+# Environment / secrets
+.env
+.env.*.local
+.env.local
+.env.development.local
+.env.production.local
+.env.test.local
+.env.test
+.env.production
+
+# Build outputs
+dist/
+build/
+tmp/
+temp/
+out/
+public/build/
+
+# React / Next / Vite specifics (client)
+.vite/
+.next/
+.cache/
+*.local
+
+# Server / runtime
+logs/
+*.log
+debug.log
+pids/
+*.pid
+*.seed
+*.pid.lock
+coverage/
+nyc_output/
+
+# Uploaded files / user data (chat room attachments)
+uploads/
+uploads-*/
+storage/
+media/
+public/uploads/
+tmp_uploads/
+
+# Database / local DB (if using local mongo data dir)
+data/
+data/db/
+mongodb/
+mongod.lock
+
+# Socket / IPC
+*.sock
+
+# OS files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# IDEs / Editors
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Mac / Linux / Windows temp
+*.swp
+*~
+.project
+.cache/
+.trash/
+
+# Containers / Docker
+docker-compose.override.yml
+**/docker-compose.override.yml
+*.env.*.docker
+
+# VSCode settings often kept locally
+.vscode/*
+!.vscode/settings.json        # optionally keep workspace settings if you want
+
+# Logs & diagnostics
+report.*
+reports/
+*.trace
+
+# Test artefacts
+jest-coverage/
+mock-logs/
+*.snap
+
+# Built mobile artifacts (if used)
+android/
+ios/
+*.keystore
+
+# Misc
+coverage/
+*.tgz
+dist-*/
