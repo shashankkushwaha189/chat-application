@@ -1,3 +1,4 @@
+const {notFound, errorHandler } = require('./middlewares/errorMiddleware')
 const express = require('express');
 const dotenv = require('dotenv');
 
@@ -19,7 +20,8 @@ app.get('/',(req,res)=>{
 
 app.use('/api/user',userRoutes);
 
-
+app.use(notFound)
+app.use(errorHandler)
 
 const PORT = process.env.PORT || 5000;
 
