@@ -6,15 +6,13 @@ const registerUser = asyncHandler(async (req,res) => {
     const { name, email, password, pic } = req.body;
 
     if(!name || !email || !password){
-        res.status(400);
-        throw new Error("Please Enter all the Feilds");
+        return res.status(400).send({ message: "Please Enter all the Fields" });
     }
 
     const userExists = await User.findOne({ email });
 
     if (userExists){
-        res.status(400);
-        throw new Error("User already exists");
+        return res.status(400).send({ message: "User already exists" });
     }
 
     const user = await User.create({
@@ -33,8 +31,7 @@ const registerUser = asyncHandler(async (req,res) => {
             token:generateToken(user._id),
         });
     }else{
-        res.status(400);
-        throw new Error("Failed to Create the User");
+        return res.status(400).send({ message: "Failed to Create the User" });
     }
     });
 
@@ -49,13 +46,12 @@ const registerUser = asyncHandler(async (req,res) => {
                 name: user.name,
                 email: user.email,
                 pic: user.pic,
-                token: generateToken(user._id,),
+                token: generateToken(user._id),
             });
         }else{
-            res.status(401);
-            throw new Error("Invalid Email or Password");
+            return res.status(401).send({ message: "Invalid Email or Password" });
         }
-    })
+    });
     const allUsers = asyncHandler(async (req, res) => {
         const keyword = req.query.search?{
             $or:[
@@ -64,7 +60,7 @@ const registerUser = asyncHandler(async (req,res) => {
             ],
         }:{};
        const users = await User.find(keyword).find({_id:{$ne:req.user._id}});
-         res.send(users);
+         res.json(users);
     });
 
     module.exports={ registerUser, authUser, allUsers };

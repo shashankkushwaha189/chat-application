@@ -18,7 +18,7 @@ const accessChat = asyncHandler(async (req, res) => {
     }).populate("users","-password").populate("latestMessage");
     isChat=await User.populate(isChat,{path:"latestMessage.sender",select:"name pic email"});
     if(isChat.length>0){
-        res.send(isChat[0]);
+        res.json(isChat[0]);
     }else{
         var chatData={
             chatName:"sender",
@@ -28,10 +28,9 @@ const accessChat = asyncHandler(async (req, res) => {
         try{
             const createdChat=await Chat.create(chatData);
             const FullChat=await Chat.findOne({_id:createdChat._id}).populate("users","-password");
-            res.status(200).send(FullChat);
+            res.status(200).json(FullChat);
         }catch(error){
-            res.status(400);
-            throw new Error(error.message);
+            res.status(400).json({ message: error.message });
         }
     }
 });
@@ -48,22 +47,25 @@ const fetchChats = asyncHandler(async (req, res) => {
                     path: "latestMessage.sender",
                     select: "name pic email",
                 });
-                res.status(200).send(results);
+                res.status(200).json(results);
             });
     } catch (error) {
-        res.status(400);
-        throw new Error(error.message);
+        res.status(400).json({ message: error.message });
     }
 });
 const createGroupChat = asyncHandler(async (req, res) => {
     if (!req.body.users || !req.body.name) {
         return res.status(400).send({ message: "Please Fill all the fields" });
     }
-    var users = JSON.parse(req.body.users);
-    if (users.length < 2) {
+    // Handle both array and stringified array formats
+    let users = req.body.users;
+    if (typeof users === "string") {
+        users = JSON.parse(users);
+    }
+    if (!Array.isArray(users) || users.length < 2) {
         return res
             .status(400)
-            .send("More than 2 users are required to form a group chat");
+            .json({ message: "More than 2 users are required to form a group chat" });
     }
     users.push(req.user);
     try {
@@ -78,8 +80,7 @@ const createGroupChat = asyncHandler(async (req, res) => {
             .populate("groupAdmin", "-password");
         res.status(200).json(fullGroupChat);
     } catch (error) {
-        res.status(400);
-        throw new Error(error.message);
+        res.status(400).send({ message: error.message });
     }
 });
 const renameGroup = asyncHandler(async (req, res) => {
@@ -92,8 +93,7 @@ const renameGroup = asyncHandler(async (req, res) => {
         .populate("users", "-password")
         .populate("groupAdmin", "-password");
     if (!updatedChat) {
-        res.status(404);
-        throw new Error("Chat Not Found");
+        res.status(404).send({ message: "Chat Not Found" });
     } else {
         res.json(updatedChat);
     }   
@@ -104,15 +104,14 @@ const addToGroup = asyncHandler(async (req, res) => {
     const added = await Chat.findByIdAndUpdate(
         chatId,
         {
-            $push: { users: userId },
+            $addToSet: { users: userId },
         },
         { new: true }
     )
         .populate("users", "-password")
         .populate("groupAdmin", "-password");
     if (!added) {
-        res.status(404);
-        throw new Error("Chat Not Found");
+        res.status(404).send({ message: "Chat Not Found" });
     } else {
         res.json(added);
     }
@@ -126,15 +125,61 @@ const removeFromGroup = asyncHandler(async (req, res) => {
             $pull: { users: userId },   
         },
         { new: true }
-    )   
-
+    )
         .populate("users", "-password")
         .populate("groupAdmin", "-password");
     if (!removed) {
-        res.status(404);    
-        throw new Error("Chat Not Found");
+        res.status(404).send({ message: "Chat Not Found" });
     } else {
-        res.json(removed);
+        // Check if the removed user was the group admin
+        if (removed.groupAdmin._id.toString() === userId) {
+            if (removed.users.length === 0) {
+                // No users left, delete the chat atomically
+                const deleted = await Chat.findOneAndDelete({ 
+                    _id: chatId, 
+                    users: { $size: 0 } 
+                });
+                if (deleted) {
+                    return res.status(200).json({ message: "Group deleted as it is empty" });
+                } else {
+                    // Users were added after removal, return updated chat
+                    const updatedChat = await Chat.findById(chatId)
+                        .populate("users", "-password")
+                        .populate("groupAdmin", "-password");
+                    return res.json(updatedChat);
+                }
+            } else {
+                // Admin was removed but users still exist, pick a new admin
+                const newAdminId = removed.users[0]._id;
+                const updatedChat = await Chat.findByIdAndUpdate(
+                    chatId,
+                    { groupAdmin: newAdminId },
+                    { new: true }
+                )
+                    .populate("users", "-password")
+                    .populate("groupAdmin", "-password");
+                return res.status(200).json(updatedChat);
+            }
+        } else {
+            // Removed user was not the admin, proceed with deletion if group is empty
+            if (removed.users.length === 0) {
+                // Atomically delete only if users array is still empty
+                const deleted = await Chat.findOneAndDelete({ 
+                    _id: chatId, 
+                    users: { $size: 0 } 
+                });
+                if (deleted) {
+                    return res.status(200).json({ message: "Group deleted as it is empty" });
+                } else {
+                    // Users were added in the meantime, return updated chat
+                    const updatedChat = await Chat.findById(chatId)
+                        .populate("users", "-password")
+                        .populate("groupAdmin", "-password");
+                    return res.json(updatedChat);
+                }
+            }
+            res.json(removed);
+        }
     }
 });
 module.exports={accessChat,fetchChats,createGroupChat,renameGroup,addToGroup,removeFromGroup};

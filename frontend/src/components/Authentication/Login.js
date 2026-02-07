@@ -75,26 +75,36 @@ const Login = () => {
   };
 
   return (
-    <VStack spacing="5px" color="black">
+    <VStack spacing={{ base: "4px", md: "5px" }} color="black" w={{ base: "100%", md: "auto" }}>
       <FormControl isRequired>
-        <FormLabel>Email Address</FormLabel>
+        <FormLabel fontSize={{ base: "sm", md: "md" }}>Email Address</FormLabel>
         <Input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          placeholder="Enter your email"
+          fontSize={{ base: "sm", md: "md" }}
+          p={{ base: 2, md: 3 }}
+          borderRadius="md"
+          _focus={{ borderColor: "#667eea", boxShadow: "0 0 0 1px #667eea" }}
         />
       </FormControl>
 
       <FormControl isRequired>
-        <FormLabel>Password</FormLabel>
+        <FormLabel fontSize={{ base: "sm", md: "md" }}>Password</FormLabel>
         <InputGroup>
           <Input
             type={show ? "text" : "password"}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            placeholder="Enter your password"
+            fontSize={{ base: "sm", md: "md" }}
+            p={{ base: 2, md: 3 }}
+            borderRadius="md"
+            _focus={{ borderColor: "#667eea", boxShadow: "0 0 0 1px #667eea" }}
           />
           <InputRightElement width="4.5rem">
-            <Button size="sm" onClick={handleClick}>
+            <Button size={{ base: "xs", md: "sm" }} onClick={handleClick} variant="ghost">
               {show ? "Hide" : "Show"}
             </Button>
           </InputRightElement>
@@ -102,22 +112,32 @@ const Login = () => {
       </FormControl>
 
       <Button
-        colorScheme="blue"
+        bgGradient="linear(135deg, #667eea 0%, #764ba2 100%)"
+        color="white"
+        _hover={{ opacity: 0.9 }}
         width="100%"
         mt={3}
         isLoading={loading}
         onClick={submitHandler}
+        fontSize={{ base: "sm", md: "md" }}
+        p={{ base: 3, md: 4 }}
+        borderRadius="md"
       >
         Login
       </Button>
 
       <Button
-        colorScheme="red"
+        colorScheme="orange"
         width="100%"
         onClick={() => {
           setEmail("guest@example.com");
           setPassword("123456");
         }}
+        fontSize={{ base: "sm", md: "md" }}
+        p={{ base: 3, md: 4 }}
+        borderRadius="md"
+        transition="all 0.2s ease"
+        _hover={{ transform: "translateY(-2px)", boxShadow: "md" }}
       >
         Get Guest User Credentials
       </Button>
