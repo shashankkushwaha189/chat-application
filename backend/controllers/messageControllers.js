@@ -36,7 +36,7 @@ const allMessages = asyncHandler(async (req, res) => {
       .skip(skip);
 
     res.json({
-      messages,
+      messages: messages.reverse(),
       pagination: {
         page,
         pageSize,

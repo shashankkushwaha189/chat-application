@@ -1,5 +1,6 @@
 import { ViewIcon } from "@chakra-ui/icons";
 import {
+  Box,
   Button,
   IconButton,
   Image,
@@ -22,9 +23,9 @@ const ProfileModal = ({ user, children }) => {
   return (
     <>
       {children ? (
-        <button onClick={onOpen} aria-label="Open Profile Modal" style={{ background: "none", border: "none", cursor: "pointer" }}>
+        <Box as="span" onClick={onOpen} cursor="pointer">
           {children}
-        </button>
+        </Box>
       ) : (
         <IconButton d={{ base: "flex" }} icon={<ViewIcon />} onClick={onOpen} size={{ base: "sm", md: "md" }} />
       )}

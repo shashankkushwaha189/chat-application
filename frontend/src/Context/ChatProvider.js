@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const ChatContext = createContext();
 const ChatProvider = ({ children }) => {
@@ -8,7 +8,7 @@ const ChatProvider = ({ children }) => {
   const [chats, setChats] = useState([]);
   const [selectedChat, setSelectedChat] = useState(null);
   const [notification, setNotification] = useState([]);
-  const history = useHistory();
+  const navigate = useNavigate();
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
@@ -21,9 +21,9 @@ const ChatProvider = ({ children }) => {
     }
     setUser(userInfo);
     if (!userInfo) {
-      history.push("/");
+      navigate("/");
     }
-  }, []);
+  }, [navigate]);
 
   return (
     <ChatContext.Provider

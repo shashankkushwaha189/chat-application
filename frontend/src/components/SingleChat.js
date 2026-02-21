@@ -23,7 +23,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const [istyping, setIsTyping] = useState(false);
   const toast = useToast();
 
-  const { selectedChat, setSelectedChat, user, notification, setNotification } =
+  const { selectedChat, setSelectedChat, user, setNotification } =
     ChatState();
 
   const fetchMessages = async () => {
@@ -95,18 +95,22 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
   useEffect(() => {
     socket = io(ENDPOINT);
-    socket.emit("setup", user);
-    socket.on("connected", () => setSocketConnected(true));
-    socket.on("typing", () => setIsTyping(true));
-    socket.on("stop typing", () => setIsTyping(false));
+    if (user) {
+      socket.emit("setup", user);
+      socket.on("connected", () => setSocketConnected(true));
+      socket.on("typing", () => setIsTyping(true));
+      socket.on("stop typing", () => setIsTyping(false));
+    }
 
     return () => {
-      socket.off("connected");
-      socket.off("typing");
-      socket.off("stop typing");
+      if (socket) {
+        socket.off("connected");
+        socket.off("typing");
+        socket.off("stop typing");
+        socket.disconnect();
+      }
     };
-    // eslint-disable-next-line
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     fetchMessages();
@@ -128,6 +132,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           return prevNotification;
         });
       } else {
+        setFetchAgain((prev) => !prev);
         setMessages((prevMessages) => [...prevMessages, newMessageRecieved]);
       }
     });
@@ -135,7 +140,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     return () => {
       socket.off("message recieved");
     };
-  }, []);
+  }, [user, setNotification, setFetchAgain]);
 
   const typingHandler = (e) => {
     setNewMessage(e.target.value);

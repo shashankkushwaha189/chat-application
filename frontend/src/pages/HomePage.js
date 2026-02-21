@@ -2,9 +2,9 @@ import React, { useEffect } from "react";
 import { Container, Box, Text,Tab,Tabs ,TabList,TabPanel,TabPanels } from "@chakra-ui/react";
 import Login from "../components/Authentication/Login";
 import Signup from "../components/Authentication/Signup";
-import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
+import { useNavigate } from "react-router-dom";
 const HomePage = () => {
-  const history = useHistory();
+  const navigate = useNavigate();
   useEffect(() => {
     let userInfo = null;
     try {
@@ -13,9 +13,9 @@ const HomePage = () => {
       localStorage.removeItem("userInfo");
     }
     if (userInfo) {
-      history.push("/chats");
+      navigate("/chats");
     }
-  }, [history]);
+  }, [navigate]);
   return (
     <Container maxW="xl" centerContent>
       <Box
