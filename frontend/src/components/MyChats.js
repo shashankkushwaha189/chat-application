@@ -121,19 +121,29 @@ const MyChats = ({ fetchAgain }) => {
                   bg: selectedChat === chat ? "purple.600" : "#DEDEDE",
                   transform: "translateX(5px)"
                 }}
+                display="flex"
+                justifyContent="space-between"
+                alignItems="center"
               >
-                <Text fontWeight="600" fontSize="md">
-                  {!chat.isGroupChat
-                    ? getSender(loggedUser, chat.users)
-                    : chat.chatName}
-                </Text>
-                {chat.latestMessage && (
-                  <Text fontSize="xs" mt={1} opacity={selectedChat === chat ? 0.9 : 0.7}>
-                    <b>{chat.latestMessage.sender.name} : </b>
-                    {chat.latestMessage.content.length > 50
-                      ? chat.latestMessage.content.substring(0, 51) + "..."
-                      : chat.latestMessage.content}
+                <Box>
+                  <Text fontWeight="600" fontSize="md">
+                    {!chat.isGroupChat
+                      ? getSender(loggedUser, chat.users)
+                      : chat.chatName}
                   </Text>
+                  {chat.latestMessage && (
+                    <Text fontSize="xs" mt={1} opacity={selectedChat === chat ? 0.9 : 0.7}>
+                      <b>{chat.latestMessage.sender.name} : </b>
+                      {chat.latestMessage.content.length > 50
+                        ? chat.latestMessage.content.substring(0, 51) + "..."
+                        : chat.latestMessage.content}
+                    </Text>
+                  )}
+                </Box>
+                {getNotificationCount(chat._id) > 0 && (
+                  <Badge colorScheme="red" borderRadius="full" px={2} fontSize="0.8em">
+                    {getNotificationCount(chat._id)}
+                  </Badge>
                 )}
               </Box>
             ))}

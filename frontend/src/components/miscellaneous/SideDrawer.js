@@ -157,10 +157,10 @@ const SideDrawer = () => {
                   {notification.length}
                 </Badge>
               )}
-              <BellIcon fontSize="2xl" m={1} color="purple.600" />
+              <BellIcon fontSize="2xl" m={1} color="gray.600" _hover={{ color: "purple.500" }} transition="all 0.2s" />
             </MenuButton>
-            <MenuList pl={2} borderColor="purple.100" boxShadow="lg">
-              {!notification.length && "No New Messages"}
+            <MenuList pl={2} borderColor="purple.100" boxShadow="lg" color="black">
+              {!notification.length && <MenuItem _hover={{ bg: "transparent" }} cursor="default">No New Messages</MenuItem>}
               {notification.map((notif) => (
                 <MenuItem
                   key={notif._id}

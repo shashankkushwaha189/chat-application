@@ -95,4 +95,52 @@ const sendMessage = asyncHandler(async (req, res) => {
   }
 });
 
-module.exports = { allMessages, sendMessage };
+//@description     Delete Single Message
+//@route           DELETE /api/Message/:messageId
+//@access          Protected
+const deleteMessage = asyncHandler(async (req, res) => {
+  try {
+    const message = await Message.findById(req.params.messageId);
+    if (!message) {
+      return res.status(404).json({ message: "Message not found" });
+    }
+
+    if (message.sender.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "Not authorized to delete this message" });
+    }
+
+    await Message.deleteOne({ _id: req.params.messageId });
+    res.json({ message: "Message deleted successfully" });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+//@description     Clear All Messages in a Chat
+//@route           DELETE /api/Message/clear/:chatId
+//@access          Protected
+const clearChat = asyncHandler(async (req, res) => {
+  try {
+    const chatId = req.params.chatId;
+    const chat = await Chat.findById(chatId);
+    if (!chat) {
+      return res.status(404).json({ message: "Chat not found" });
+    }
+
+    const isUserMember = chat.users.some(userId => userId.toString() === req.user._id.toString());
+    if (!isUserMember) {
+      return res.status(403).json({ message: "Not authorized to clear messages in this chat" });
+    }
+
+    await Message.deleteMany({ chat: chatId });
+    
+    // Update latestMessage in Chat
+    await Chat.findByIdAndUpdate(chatId, { latestMessage: null });
+
+    res.json({ message: "Chat cleared successfully" });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+module.exports = { allMessages, sendMessage, deleteMessage, clearChat };

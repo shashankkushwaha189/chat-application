@@ -1,9 +1,9 @@
-import { FormControl, Input, Box, Text, IconButton, Spinner, useToast } from "@chakra-ui/react";
+import { FormControl, Input, Box, Text, IconButton, Spinner, useToast, Menu, MenuButton, MenuList, MenuItem } from "@chakra-ui/react";
 import "./styles.css";
 import { getSender, getSenderFull } from "../config/ChatLogics";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { ArrowBackIcon } from "@chakra-ui/icons";
+import { ArrowBackIcon, ChevronDownIcon, DeleteIcon } from "@chakra-ui/icons";
 import ProfileModal from "./miscellaneous/ProfileModal";
 import ScrollableChat from "./ScrollableChat";
 import TypingIndicator from "./TypingIndicator";
@@ -93,6 +93,40 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     }
   };
 
+  const clearChatHandler = async () => {
+    if (!selectedChat) return;
+
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      };
+
+      setLoading(true);
+      await axios.delete(`/api/message/clear/${selectedChat._id}`, config);
+      setMessages([]);
+      setLoading(false);
+      toast({
+        title: "Chat Cleared",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+        position: "bottom",
+      });
+    } catch (error) {
+      toast({
+        title: "Error Occured!",
+        description: "Failed to clear the chat",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     socket = io(ENDPOINT);
     if (user) {
@@ -115,6 +149,13 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   useEffect(() => {
     fetchMessages();
     selectedChatCompare = selectedChat;
+    
+    // Clear notifications for the selected chat
+    if (selectedChat) {
+      setNotification((prevNotification) => 
+        prevNotification.filter((n) => n.chat._id !== selectedChat._id)
+      );
+    }
     // eslint-disable-next-line
   }, [selectedChat]);
 
@@ -125,7 +166,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         selectedChatCompare._id !== newMessageRecieved.chat._id
       ) {
         setNotification((prevNotification) => {
-          if (!prevNotification.includes(newMessageRecieved)) {
+          // Check for duplicate notification by message _id
+          if (!prevNotification.some((n) => n._id === newMessageRecieved._id)) {
             setFetchAgain((prev) => !prev);
             return [newMessageRecieved, ...prevNotification];
           }
@@ -186,33 +228,51 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
             color="purple.700"
             flexShrink={0}
           >
-            <IconButton
-              display={{ base: "flex", md: "none" }}
-              icon={<ArrowBackIcon />}
-              onClick={() => setSelectedChat("")}
-              bg="purple.50"
-              _hover={{ bg: "purple.100" }}
-              borderRadius="full"
-              size="sm"
-            />
-            {messages &&
-              (!selectedChat.isGroupChat ? (
-                <>
-                  {getSender(user, selectedChat.users)}
-                  <ProfileModal
-                    user={getSenderFull(user, selectedChat.users)}
-                  />
-                </>
+            <Box display="flex" alignItems="center" gap={2}>
+              <IconButton
+                display={{ base: "flex", md: "none" }}
+                icon={<ArrowBackIcon />}
+                onClick={() => setSelectedChat("")}
+                bg="purple.50"
+                _hover={{ bg: "purple.100" }}
+                borderRadius="full"
+                size="sm"
+              />
+              {messages &&
+                (!selectedChat.isGroupChat ? (
+                  <>
+                    {getSender(user, selectedChat.users)}
+                  </>
+                ) : (
+                  <>
+                    {selectedChat.chatName.toUpperCase()}
+                  </>
+                ))}
+            </Box>
+            <Box display="flex" alignItems="center" gap={2}>
+              {!selectedChat.isGroupChat ? (
+                <ProfileModal user={getSenderFull(user, selectedChat.users)} />
               ) : (
-                <>
-                  {selectedChat.chatName.toUpperCase()}
-                  <UpdateGroupChatModal
-                    fetchMessages={fetchMessages}
-                    fetchAgain={fetchAgain}
-                    setFetchAgain={setFetchAgain}
-                  />
-                </>
-              ))}
+                <UpdateGroupChatModal
+                  fetchMessages={fetchMessages}
+                  fetchAgain={fetchAgain}
+                  setFetchAgain={setFetchAgain}
+                />
+              )}
+              <Menu>
+                <MenuButton as={IconButton} icon={<ChevronDownIcon />} size="sm" variant="ghost" />
+                <MenuList color="black" fontSize="md">
+                  <MenuItem 
+                    icon={<DeleteIcon />} 
+                    color="red.500" 
+                    onClick={clearChatHandler}
+                    _hover={{ bg: "red.50" }}
+                  >
+                    Clear Chat
+                  </MenuItem>
+                </MenuList>
+              </Menu>
+            </Box>
           </Box>
           <Box
             display="flex"
@@ -243,7 +303,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                 overflowY="auto"
                 mb={2}
               >
-                <ScrollableChat messages={messages} />
+                <ScrollableChat messages={messages} setMessages={setMessages} />
               </Box>
             )}
 
