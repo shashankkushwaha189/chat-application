@@ -208,6 +208,11 @@ const SideDrawer = () => {
                 mr={2}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleSearch();
+                  }
+                }}
                 borderRadius="lg"
                 borderColor="purple.200"
                 _focus={{ borderColor: "purple.500", boxShadow: "0 0 0 1px purple.500" }}

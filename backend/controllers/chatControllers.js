@@ -1,6 +1,7 @@
 const asyncHandler = require("express-async-handler");
 const Chat = require("../models/chatModel");
 const User = require("../models/userModel");
+const Message = require("../models/messageModel");
 const accessChat = asyncHandler(async (req, res) => {
     
     const { userId } = req.body;    
@@ -9,7 +10,7 @@ const accessChat = asyncHandler(async (req, res) => {
         return res.sendStatus(400);
     }
     // Further implementation goes here
-    const isChat = await Chat.find({
+    let isChat = await Chat.find({
         isGroupChat:false,
         $and:[  
             {users:{$elemMatch:{$eq:req.user._id}}},
@@ -182,4 +183,37 @@ const removeFromGroup = asyncHandler(async (req, res) => {
         }
     }
 });
-module.exports={accessChat,fetchChats,createGroupChat,renameGroup,addToGroup,removeFromGroup};
+const deleteChat = asyncHandler(async (req, res) => {
+  const { chatId } = req.params;
+
+  try {
+    const chat = await Chat.findById(chatId);
+
+    if (!chat) {
+      return res.status(404).json({ message: "Chat not found" });
+    }
+
+    // Check if user is part of the chat
+    const isUserMember = chat.users.some(
+      (userId) => userId.toString() === req.user._id.toString()
+    );
+
+    if (!isUserMember) {
+      return res
+        .status(403)
+        .json({ message: "Not authorized to delete this chat" });
+    }
+
+    // Delete all messages in the chat
+    await Message.deleteMany({ chat: chatId });
+
+    // Delete the chat itself
+    await Chat.findByIdAndDelete(chatId);
+
+    res.status(200).json({ message: "Chat deleted successfully" });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+module.exports={accessChat,fetchChats,createGroupChat,renameGroup,addToGroup,removeFromGroup,deleteChat};

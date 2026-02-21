@@ -107,6 +107,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       await axios.delete(`/api/message/clear/${selectedChat._id}`, config);
       setMessages([]);
       setLoading(false);
+      setFetchAgain(!fetchAgain); // Refresh Sidebar
       toast({
         title: "Chat Cleared",
         status: "success",
@@ -118,6 +119,41 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       toast({
         title: "Error Occured!",
         description: "Failed to clear the chat",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+      setLoading(false);
+    }
+  };
+
+  const deleteChatHandler = async () => {
+    if (!selectedChat) return;
+
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      };
+
+      setLoading(true);
+      await axios.delete(`/api/chat/${selectedChat._id}`, config);
+      setSelectedChat(""); // Deselect deleted chat
+      setFetchAgain(!fetchAgain); // Refresh Sidebar
+      setLoading(false);
+      toast({
+        title: "Chat Deleted",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+        position: "bottom",
+      });
+    } catch (error) {
+      toast({
+        title: "Error Occured!",
+        description: "Failed to delete the chat",
         status: "error",
         duration: 5000,
         isClosable: true,
@@ -269,6 +305,14 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                     _hover={{ bg: "red.50" }}
                   >
                     Clear Chat
+                  </MenuItem>
+                  <MenuItem 
+                    icon={<DeleteIcon />} 
+                    color="red.600" 
+                    onClick={deleteChatHandler}
+                    _hover={{ bg: "red.50" }}
+                  >
+                    Delete Chat
                   </MenuItem>
                 </MenuList>
               </Menu>
