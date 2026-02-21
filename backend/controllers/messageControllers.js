@@ -76,6 +76,8 @@ const sendMessage = asyncHandler(async (req, res) => {
       sender: req.user._id,
       content: content,
       chat: chatId,
+      messageType: req.body.messageType || "text",
+      fileUrl: req.body.fileUrl || null,
     };
 
     var message = await Message.create(newMessage);

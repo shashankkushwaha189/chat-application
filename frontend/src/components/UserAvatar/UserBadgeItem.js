@@ -18,7 +18,11 @@ const UserBadgeItem = ({ user, handleFunction, admin }) => {
       _hover={{ shadow: "md", transform: "scale(1.05)" }}
     >
       {user.name}
-      {admin === user._id && <span> (Admin)</span>}
+      {admin && (admin._id === user._id || admin === user._id) && (
+        <span style={{ fontSize: "8px", marginLeft: "5px", verticalAlign: "middle", fontWeight: "bold" }}>
+          (Admin)
+        </span>
+      )}
       <CloseIcon pl={1} />
     </Badge>
   );

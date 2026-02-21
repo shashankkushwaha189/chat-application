@@ -1,5 +1,20 @@
 /* SingleChat Styles */
 
+.messages, .messages-container, .messages-container > div {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+  overflow-x: hidden !important;
+}
+
+.messages::-webkit-scrollbar,
+.messages-container::-webkit-scrollbar,
+.messages-container > div::-webkit-scrollbar,
+.messages::-webkit-scrollbar-track,
+.messages-container::-webkit-scrollbar-track {
+  display: none !important;
+  background: transparent !important;
+}
+
 .messages {
   display: flex;
   flex-direction: column;
@@ -7,32 +22,9 @@
   width: 100%;
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding-right: 0.5rem;
-}
-
-.messages-container {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  overflow-y: auto;
-  padding-right: 0.5rem;
-}
-
-.messages-container::-webkit-scrollbar {
-  width: 6px;
-}
-
-.messages-container::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.messages-container::-webkit-scrollbar-thumb {
-  background: #cbd5e0;
-  border-radius: 3px;
-}
-
-.messages-container::-webkit-scrollbar-thumb:hover {
-  background: #a0aec0;
+  scroll-behavior: smooth;
 }
 
 .message {
@@ -101,7 +93,7 @@
   background-color: #e2e8f0;
   border-radius: 1rem;
   width: fit-content;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  box-shadow: none;
 }
 
 .typing-dot {

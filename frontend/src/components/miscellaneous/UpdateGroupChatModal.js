@@ -21,6 +21,7 @@ import {
   AlertDialogHeader,
   AlertDialogContent,
   AlertDialogOverlay,
+  Text,
 } from "@chakra-ui/react";
 import axios from "axios";
 import { useState, useRef } from "react";
@@ -243,17 +244,24 @@ const UpdateGroupChatModal = ({ fetchMessages, fetchAgain, setFetchAgain }) => {
           </ModalHeader>
 
           <ModalCloseButton color="white" />
-          <ModalBody d="flex" flexDir="column" alignItems="center" py={{ base: 3, md: 4 }}>
-            <Box w="100%" d="flex" flexWrap="wrap" pb={3}>
-              {selectedChat.users.map((u) => (
-                <UserBadgeItem
-                  key={u._id}
-                  user={u}
-                  admin={selectedChat.groupAdmin}
-                  handleFunction={() => handleRemove(u)}
-                />
-              ))}
+          <ModalBody d="flex" flexDir="column" alignItems="center" py={{ base: 4, md: 6 }}>
+            <Box w="100%" mb={6}>
+              <Text fontWeight="bold" mb={2} color="gray.600" fontSize="sm">
+                Group Members ({selectedChat.users.length})
+              </Text>
+              <Box d="flex" flexWrap="wrap" p={2} bg="gray.50" borderRadius="lg" minH="50px">
+                {selectedChat.users.map((u) => (
+                  <UserBadgeItem
+                    key={u._id}
+                    user={u}
+                    admin={selectedChat.groupAdmin}
+                    handleFunction={() => handleRemove(u)}
+                  />
+                ))}
+              </Box>
             </Box>
+
+            <Box w="100%" h="1px" bg="gray.100" mb={6} />
             <FormControl d="flex" mb={4} gap={2}>
               <Input
                 placeholder="Chat Name"
@@ -275,8 +283,11 @@ const UpdateGroupChatModal = ({ fetchMessages, fetchAgain, setFetchAgain }) => {
               </Button>
             </FormControl>
             <FormControl mb={4}>
+              <Text fontWeight="bold" mb={2} color="gray.600" fontSize="sm">
+                Add More Members
+              </Text>
               <Input
-                placeholder="Add User to group"
+                placeholder="Search to add..."
                 fontSize={{ base: "sm", md: "md" }}
                 p={{ base: 2, md: 3 }}
                 _focus={{ borderColor: "#667eea", boxShadow: "0 0 0 1px #667eea" }}

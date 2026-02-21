@@ -1,9 +1,10 @@
-import { FormControl, Input, Box, Text, IconButton, Spinner, useToast, Menu, MenuButton, MenuList, MenuItem } from "@chakra-ui/react";
+import { FormControl, Input, Box, Text, IconButton, Spinner, useToast, Menu, MenuButton, MenuList, MenuItem, Flex } from "@chakra-ui/react";
 import "./styles.css";
 import { getSender, getSenderFull } from "../config/ChatLogics";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { ArrowBackIcon, ChevronDownIcon, DeleteIcon } from "@chakra-ui/icons";
+import { FaMicrophone, FaVideo, FaHeadphones, FaStop, FaImage } from "react-icons/fa";
 import ProfileModal from "./miscellaneous/ProfileModal";
 import ScrollableChat from "./ScrollableChat";
 import TypingIndicator from "./TypingIndicator";
@@ -11,7 +12,7 @@ import TypingIndicator from "./TypingIndicator";
 import io from "socket.io-client";
 import UpdateGroupChatModal from "./miscellaneous/UpdateGroupChatModal";
 import { ChatState } from "../Context/ChatProvider";
-const ENDPOINT = "http://localhost:5000";
+const ENDPOINT = ""; // Use relative for production (same origin)
 var socket, selectedChatCompare;
 
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
@@ -21,6 +22,13 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const [socketConnected, setSocketConnected] = useState(false);
   const [typing, setTyping] = useState(false);
   const [istyping, setIsTyping] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [mediaLoading, setMediaLoading] = useState(false);
+  const mediaRecorder = useRef(null);
+  const audioChunks = useRef([]);
+  const fileInputRef = useRef(null);
+  const videoInputRef = useRef(null);
+  const imageInputRef = useRef(null);
   const toast = useToast();
 
   const { selectedChat, setSelectedChat, user, setNotification } =
@@ -129,37 +137,133 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   };
 
   const deleteChatHandler = async () => {
-    if (!selectedChat) return;
+    // ... code existing ...
+  };
 
+  const sendMediaMessage = async (fileUrl, messageType) => {
     try {
       const config = {
         headers: {
+          "Content-type": "application/json",
           Authorization: `Bearer ${user.token}`,
         },
       };
-
-      setLoading(true);
-      await axios.delete(`/api/chat/${selectedChat._id}`, config);
-      setSelectedChat(""); // Deselect deleted chat
-      setFetchAgain(!fetchAgain); // Refresh Sidebar
-      setLoading(false);
-      toast({
-        title: "Chat Deleted",
-        status: "success",
-        duration: 3000,
-        isClosable: true,
-        position: "bottom",
-      });
+      const { data } = await axios.post(
+        "/api/message",
+        {
+          content: messageType.charAt(0).toUpperCase() + messageType.slice(1) + " Message",
+          chatId: selectedChat._id,
+          messageType,
+          fileUrl,
+        },
+        config
+      );
+      socket.emit("new message", data);
+      setMessages([...messages, data]);
     } catch (error) {
       toast({
         title: "Error Occured!",
-        description: "Failed to delete the chat",
+        description: "Failed to send media message",
         status: "error",
         duration: 5000,
         isClosable: true,
         position: "bottom",
       });
-      setLoading(false);
+    }
+  };
+
+  const handleFileUpload = async (e, type) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setMediaLoading(true);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const config = {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${user.token}`,
+        },
+      };
+
+      const { data } = await axios.post("/api/message/upload", formData, config);
+      await sendMediaMessage(data.fileUrl, type);
+    } catch (error) {
+      toast({
+        title: "Error Occured!",
+        description: "Failed to upload file",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+    } finally {
+      setMediaLoading(false);
+    }
+  };
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorder.current = new MediaRecorder(stream);
+      audioChunks.current = [];
+
+      mediaRecorder.current.ondataavailable = (event) => {
+        audioChunks.current.push(event.data);
+      };
+
+      mediaRecorder.current.onstop = async () => {
+        const audioBlob = new Blob(audioChunks.current, { type: "audio/wav" });
+        const file = new File([audioBlob], "voice_message.wav", { type: "audio/wav" });
+        
+        const formData = new FormData();
+        formData.append("file", file);
+
+        setMediaLoading(true);
+        try {
+          const config = {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${user.token}`,
+            },
+          };
+          const { data } = await axios.post("/api/message/upload", formData, config);
+          await sendMediaMessage(data.fileUrl, "voice");
+        } catch (error) {
+          toast({
+            title: "Error Occured!",
+            description: "Failed to send voice message",
+            status: "error",
+            duration: 5000,
+            isClosable: true,
+            position: "bottom",
+          });
+        } finally {
+          setMediaLoading(false);
+        }
+      };
+
+      mediaRecorder.current.start();
+      setIsRecording(true);
+    } catch (error) {
+      toast({
+        title: "Microphone Error",
+        description: "Could not access microphone",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorder.current && isRecording) {
+      mediaRecorder.current.stop();
+      setIsRecording(false);
+      mediaRecorder.current.stream.getTracks().forEach(track => track.stop());
     }
   };
 
@@ -328,8 +432,9 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
             flex="1"
             borderRadius="2xl"
             overflow="hidden"
-            borderWidth="1px"
-            borderColor="white"
+            overflowX="hidden"
+            borderWidth="0"
+            borderColor="transparent"
           >
             {loading ? (
               <Spinner
@@ -344,7 +449,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
               <Box
                 className="messages"
                 flex="1"
-                overflowY="auto"
                 mb={2}
               >
                 <ScrollableChat messages={messages} setMessages={setMessages} />
@@ -357,25 +461,85 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
               isRequired
               mt="auto"
             >
-              {istyping && <TypingIndicator />}
+              {istyping && (
+                <Box width="fit-content" ml={2}>
+                  <TypingIndicator />
+                </Box>
+              )}
               <Box display="flex" gap={2} alignItems="center" bg="white" p={2} borderRadius="xl" boxShadow="sm">
                 <Input
                   variant="unstyled"
-                  placeholder="Type a message..."
+                  placeholder={isRecording ? "Recording..." : "Type a message..."}
                   value={newMessage}
                   onChange={typingHandler}
                   px={4}
                   fontSize={{ base: "sm", md: "md" }}
+                  isDisabled={isRecording}
                 />
+                
+                <Flex gap={1} mr={1}>
+                  <Menu>
+                    <MenuButton
+                      as={IconButton}
+                      icon={<i className="fas fa-plus"></i>}
+                      variant="ghost"
+                      colorScheme="purple"
+                      size="sm"
+                      isDisabled={mediaLoading || isRecording}
+                    />
+                    <MenuList color="black">
+                      <MenuItem icon={<FaImage />} onClick={() => imageInputRef.current.click()}>
+                        Image
+                      </MenuItem>
+                      <MenuItem icon={<FaVideo />} onClick={() => videoInputRef.current.click()}>
+                        Video
+                      </MenuItem>
+                      <MenuItem icon={<FaHeadphones />} onClick={() => fileInputRef.current.click()}>
+                        Audio
+                      </MenuItem>
+                      <MenuItem 
+                        icon={isRecording ? <FaStop /> : <FaMicrophone />} 
+                        onClick={isRecording ? stopRecording : startRecording}
+                        color={isRecording ? "red.500" : "inherit"}
+                      >
+                        {isRecording ? "Stop Recording" : "Voice Message"}
+                      </MenuItem>
+                    </MenuList>
+                  </Menu>
+
+                  <input
+                    type="file"
+                    accept="audio/*"
+                    style={{ display: "none" }}
+                    ref={fileInputRef}
+                    onChange={(e) => handleFileUpload(e, "audio")}
+                  />
+                  <input
+                    type="file"
+                    accept="video/*"
+                    style={{ display: "none" }}
+                    ref={videoInputRef}
+                    onChange={(e) => handleFileUpload(e, "video")}
+                  />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    style={{ display: "none" }}
+                    ref={imageInputRef}
+                    onChange={(e) => handleFileUpload(e, "image")}
+                  />
+                </Flex>
+
                 <IconButton
                   aria-label="Send message"
-                  icon={<i className="fas fa-paper-plane"></i>}
+                  icon={mediaLoading ? <Spinner size="xs" /> : <i className="fas fa-paper-plane"></i>}
                   onClick={() => sendMessage({ key: "Enter" })}
                   colorScheme="purple"
                   borderRadius="lg"
                   size="md"
                   transition="all 0.2s"
                   _hover={{ transform: "scale(1.1)" }}
+                  isDisabled={mediaLoading || isRecording}
                 />
               </Box>
             </FormControl>
