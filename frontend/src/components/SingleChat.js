@@ -164,25 +164,36 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   };
 
   return (
-    <>
+    <Box
+      display="flex"
+      flexDirection="column"
+      h="100%"
+      w="100%"
+      overflow="hidden"
+    >
       {selectedChat ? (
         <>
-          <Text
-            fontSize={{ base: "24px", sm: "28px", md: "30px" }}
+          <Box
+            fontSize={{ base: "24px", md: "30px" }}
             pb={3}
-            px={2}
+            px={4}
             w="100%"
-            fontFamily="Work sans"
-            d="flex"
+            fontFamily="Inter"
+            fontWeight="bold"
+            display="flex"
             justifyContent={{ base: "space-between" }}
             alignItems="center"
+            color="purple.700"
+            flexShrink={0}
           >
             <IconButton
-              d={{ base: "flex", md: "none" }}
+              display={{ base: "flex", md: "none" }}
               icon={<ArrowBackIcon />}
               onClick={() => setSelectedChat("")}
+              bg="purple.50"
+              _hover={{ bg: "purple.100" }}
+              borderRadius="full"
               size="sm"
-              variant="ghost"
             />
             {messages &&
               (!selectedChat.isGroupChat ? (
@@ -202,20 +213,19 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                   />
                 </>
               ))}
-          </Text>
+          </Box>
           <Box
-            d="flex"
-            flexDir="column"
-            p={{ base: 2, md: 3 }}
-            bg="#E8E8E8"
-            w="100%"
-            h="calc(100vh - 200px)"
-            minH="calc(100vh - 200px)"
-            maxH="calc(100vh - 200px)"
-            borderRadius="lg"
             display="flex"
-            flexDirection="column"
+            flexDir="column"
+            p={3}
+            bg="rgba(240, 242, 245, 0.8)"
+            backdropFilter="blur(5px)"
+            w="100%"
+            flex="1"
+            borderRadius="2xl"
             overflow="hidden"
+            borderWidth="1px"
+            borderColor="white"
           >
             {loading ? (
               <Spinner
@@ -224,11 +234,14 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                 h={20}
                 alignSelf="center"
                 margin="auto"
+                color="purple.500"
               />
             ) : (
               <Box
                 className="messages"
-                mb={3}
+                flex="1"
+                overflowY="auto"
+                mb={2}
               >
                 <ScrollableChat messages={messages} />
               </Box>
@@ -238,43 +251,50 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
               onKeyDown={sendMessage}
               id="message-input"
               isRequired
-              flexShrink={0}
+              mt="auto"
             >
               {istyping && <TypingIndicator />}
-              <Box display="flex" gap={2}>
+              <Box display="flex" gap={2} alignItems="center" bg="white" p={2} borderRadius="xl" boxShadow="sm">
                 <Input
-                  variant="filled"
-                  bg="#E0E0E0"
-                  placeholder="Enter a message..."
+                  variant="unstyled"
+                  placeholder="Type a message..."
                   value={newMessage}
                   onChange={typingHandler}
-                  borderRadius="lg"
+                  px={4}
                   fontSize={{ base: "sm", md: "md" }}
-                  _placeholder={{ color: "#a0aec0" }}
-                  _focus={{
-                    bg: "#f7fafc",
-                    borderColor: "#3182ce",
-                  }}
+                />
+                <IconButton
+                  aria-label="Send message"
+                  icon={<i className="fas fa-paper-plane"></i>}
+                  onClick={() => sendMessage({ key: "Enter" })}
+                  colorScheme="purple"
+                  borderRadius="lg"
+                  size="md"
+                  transition="all 0.2s"
+                  _hover={{ transform: "scale(1.1)" }}
                 />
               </Box>
             </FormControl>
           </Box>
         </>
       ) : (
-        <Box d="flex" alignItems="center" justifyContent="center" h="100%">
+        <Box display="flex" alignItems="center" justifyContent="center" h="100%" flexDir="column" gap={4}>
+          <Box boxSize="200px" opacity={0.6} transition="all 0.5s" _hover={{ opacity: 1, transform: "scale(1.05)" }}>
+            <i className="fas fa-comments" style={{ fontSize: "150px", color: "#805AD5" }}></i>
+          </Box>
           <Text
-            fontSize={{ base: "xl", sm: "2xl", md: "3xl" }}
-            pb={3}
-            fontFamily="Work sans"
+            fontSize={{ base: "xl", md: "3xl" }}
+            fontWeight="600"
+            fontFamily="Inter"
             textAlign="center"
             px={4}
-            color="#718096"
+            color="purple.400"
           >
-            Click on a user to start chatting
+            Select a conversation to start chatting
           </Text>
         </Box>
       )}
-    </>
+    </Box>
   );
 };
 

@@ -48,105 +48,93 @@ const MyChats = ({ fetchAgain }) => {
 
   return (
     <Box
-      d={{ base: selectedChat ? "none" : "flex", md: "flex" }}
+      display={{ base: selectedChat ? "none" : "flex", md: "flex" }}
       flexDir="column"
       alignItems="center"
-      p={{ base: 2, md: 3 }}
-      bg="white"
+      p={{ base: 3, md: 4 }}
+      bg="rgba(255, 255, 255, 0.9)"
+      backdropFilter="blur(10px)"
       w={{ base: "100%", md: "31%" }}
-      borderRadius="lg"
+      borderRadius="2xl"
       borderWidth="1px"
-      boxShadow={{ base: "none", md: "sm" }}
-      overflowY="auto"
+      borderColor="purple.100"
+      boxShadow="0 4px 20px rgba(0, 0, 0, 0.05)"
+      overflowY="hidden"
     >
       <Box
-        pb={3}
-        px={{ base: 2, md: 3 }}
-        fontSize={{ base: "24px", sm: "28px", md: "30px" }}
-        fontFamily="Work sans"
-        d="flex"
+        pb={4}
+        px={3}
+        fontSize={{ base: "24px", md: "30px" }}
+        fontFamily="Inter"
+        fontWeight="bold"
+        display="flex"
         w="100%"
         justifyContent="space-between"
         alignItems="center"
+        color="purple.700"
       >
         My Chats
         <GroupChatModal>
           <Button
-            d="flex"
-            fontSize={{ base: "xs", sm: "sm", md: "md", lg: "17px" }}
+            display="flex"
+            fontSize={{ base: "14px", md: "16px", lg: "17px" }}
             rightIcon={<AddIcon />}
-            size={{ base: "sm", md: "md" }}
-            colorScheme="teal"
-            variant="solid"
+            bgGradient="linear(to-r, purple.500, pink.500)"
+            color="white"
+            _hover={{ 
+              bgGradient: "linear(to-r, purple.600, pink.600)",
+              transform: "scale(1.05)" 
+            }}
+            transition="all 0.2s"
+            borderRadius="lg"
+            size="sm"
           >
             New Group
           </Button>
         </GroupChatModal>
       </Box>
       <Box
-        d="flex"
+        display="flex"
         flexDir="column"
-        p={{ base: 2, md: 3 }}
+        p={3}
         bg="#F8F8F8"
         w="100%"
         h="100%"
-        borderRadius="lg"
-        overflowY="auto"
-        gap={2}
+        borderRadius="xl"
+        overflowY="hidden"
       >
         {chats ? (
-          <Stack spacing={2} overflowY="auto">
+          <Stack overflowY="scroll" spacing={3}>
             {chats.map((chat) => (
               <Box
                 onClick={() => setSelectedChat(chat)}
                 cursor="pointer"
-                bg={selectedChat === chat ? "#38B2AC" : "#E8E8E8"}
+                bg={selectedChat === chat ? "purple.500" : "#E8E8E8"}
                 color={selectedChat === chat ? "white" : "black"}
-                px={{ base: 2, md: 3 }}
-                py={{ base: 1.5, md: 2 }}
-                borderRadius="lg"
+                px={4}
+                py={3}
+                borderRadius="xl"
                 key={chat._id}
-                position="relative"
-                transition="all 0.2s ease"
+                transition="all 0.2s"
+                boxShadow={selectedChat === chat ? "0 4px 12px rgba(128, 90, 213, 0.3)" : "none"}
                 _hover={{
-                  bg: selectedChat === chat ? "#38B2AC" : "#ddd",
-                  transform: "translateX(4px)",
+                  bg: selectedChat === chat ? "purple.600" : "#DEDEDE",
+                  transform: "translateX(5px)"
                 }}
               >
-                <Box display="flex" justifyContent="space-between" alignItems="center">
-                  <Box flex="1" minW={0}>
-                    <Text
-                      fontWeight="bold"
-                      fontSize={{ base: "sm", md: "md" }}
-                      isTruncated
-                    >
-                      {!chat.isGroupChat
-                        ? getSender(loggedUser, chat.users)
-                        : chat.chatName}
-                    </Text>
-                    {chat.latestMessage && (
-                      <Text fontSize={{ base: "xs", md: "sm" }} isTruncated opacity={0.7}>
-                        <b>{chat.latestMessage.sender.name} : </b>
-                        {chat.latestMessage.content.length > 50
-                          ? chat.latestMessage.content.substring(0, 50) + "..."
-                          : chat.latestMessage.content}
-                      </Text>
-                    )}
-                  </Box>
-                  {getNotificationCount(chat._id) > 0 && (
-                    <Badge
-                      ml={2}
-                      borderRadius="full"
-                      px={2}
-                      py={1}
-                      colorScheme="red"
-                      fontSize={{ base: "0.65em", md: "0.8em" }}
-                      flexShrink={0}
-                    >
-                      {getNotificationCount(chat._id)}
-                    </Badge>
-                  )}
-                </Box>
+                <Text fontWeight="600" fontSize="md">
+                  {!chat.isGroupChat
+                    ? getSender(loggedUser, chat.users)
+                    : chat.chatName}
+                </Text>
+                {chat.latestMessage && (
+                  <Text fontSize="xs" mt={1} opacity={selectedChat === chat ? 0.9 : 0.7}>
+                    <b>{chat.latestMessage.sender.name} : </b>
+                    {chat.latestMessage.content.length > 50
+                      ? chat.latestMessage.content.substring(0, 51) + "..."
+                      : chat.latestMessage.content}
+                  </Text>
+                )}
               </Box>
             ))}
           </Stack>

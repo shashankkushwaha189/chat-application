@@ -17,26 +17,50 @@ const HomePage = () => {
     }
   }, [navigate]);
   return (
-    <Container maxW="xl" centerContent>
+    <Container maxW="xl" centerContent p={{ base: 4, md: 0 }}>
       <Box
-        d="flex"
+        display="flex"
         justifyContent="center"
-        p={3}
-        bg={"white"}
+        p={4}
+        bg="rgba(255, 255, 255, 0.8)"
+        backdropFilter="blur(10px)"
         w="100%"
         m="40px 0 15px 0"
-        borderRadius="lg"
+        borderRadius="xl"
         borderWidth="1px"
+        borderColor="rgba(255, 255, 255, 0.3)"
+        boxShadow="0 8px 32px 0 rgba(31, 38, 135, 0.2)"
       >
-        <Text textAlign='center' fontSize="4xl" fontFamily="Work Sans" color="black">
+        <Text
+          textAlign="center"
+          fontSize="5xl"
+          fontWeight="bold"
+          fontFamily="Inter"
+          bgGradient="linear(to-l, #7928CA, #FF0080)"
+          bgClip="text"
+        >
           Chat -X
         </Text>
       </Box>
-      <Box bg="white" w="100%" p={4} borderRadius="lg" borderWidth="1px" color='black'>
-        <Tabs variant="soft-rounded" >
-          <TabList mb='1em'>
-            <Tab width='50%'>Login</Tab>
-            <Tab width='50%'>Sign Up</Tab>
+      <Box
+        bg="rgba(255, 255, 255, 0.9)"
+        backdropFilter="blur(8px)"
+        w="100%"
+        p={6}
+        borderRadius="xl"
+        borderWidth="1px"
+        borderColor="rgba(255, 255, 255, 0.3)"
+        boxShadow="0 8px 32px 0 rgba(31, 38, 135, 0.1)"
+        color="black"
+      >
+        <Tabs variant="soft-rounded" colorScheme="purple">
+          <TabList mb="1em">
+            <Tab width="50%" _selected={{ color: "white", bg: "purple.500" }} fontWeight="600">
+              Login
+            </Tab>
+            <Tab width="50%" _selected={{ color: "white", bg: "pink.500" }} fontWeight="600">
+              Sign Up
+            </Tab>
           </TabList>
           <TabPanels>
             <TabPanel>

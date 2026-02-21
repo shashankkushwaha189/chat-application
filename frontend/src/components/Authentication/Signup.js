@@ -144,96 +144,112 @@ const Signup = () => {
   };
 
   return (
-    <VStack spacing={{ base: "4px", md: "5px" }} w={{ base: "100%", md: "auto" }}>
-      <FormControl isRequired>
-        <FormLabel fontSize={{ base: "sm", md: "md" }}>Name</FormLabel>
+    <VStack spacing="15px" w="100%">
+      <FormControl isRequired id="first-name">
+        <FormLabel fontSize="sm" fontWeight="600" color="gray.700">Name</FormLabel>
         <Input
           placeholder="Enter your name"
-          fontSize={{ base: "sm", md: "md" }}
-          p={{ base: 2, md: 3 }}
-          borderRadius="md"
-          _focus={{ borderColor: "#667eea", boxShadow: "0 0 0 1px #667eea" }}
+          fontSize="md"
+          h="45px"
+          borderRadius="lg"
+          borderWidth="2px"
+          _focus={{ borderColor: "purple.500", boxShadow: "0 0 0 1px purple.500" }}
+          transition="all 0.2s"
           onChange={(e) => setName(e.target.value)}
         />
       </FormControl>
 
-      <FormControl isRequired>
-        <FormLabel fontSize={{ base: "sm", md: "md" }}>Email</FormLabel>
+      <FormControl isRequired id="email-signup">
+        <FormLabel fontSize="sm" fontWeight="600" color="gray.700">Email Address</FormLabel>
         <Input
           type="email"
           placeholder="Enter your email"
-          fontSize={{ base: "sm", md: "md" }}
-          p={{ base: 2, md: 3 }}
-          borderRadius="md"
-          _focus={{ borderColor: "#667eea", boxShadow: "0 0 0 1px #667eea" }}
+          fontSize="md"
+          h="45px"
+          borderRadius="lg"
+          borderWidth="2px"
+          _focus={{ borderColor: "purple.500", boxShadow: "0 0 0 1px purple.500" }}
+          transition="all 0.2s"
           onChange={(e) => setEmail(e.target.value)}
         />
       </FormControl>
 
-      <FormControl isRequired>
-        <FormLabel fontSize={{ base: "sm", md: "md" }}>Password</FormLabel>
+      <FormControl isRequired id="password-signup">
+        <FormLabel fontSize="sm" fontWeight="600" color="gray.700">Password</FormLabel>
         <InputGroup>
           <Input
             type={show ? "text" : "password"}
             placeholder="Enter password"
-            fontSize={{ base: "sm", md: "md" }}
-            p={{ base: 2, md: 3 }}
-            borderRadius="md"
-            _focus={{ borderColor: "#667eea", boxShadow: "0 0 0 1px #667eea" }}
+            fontSize="md"
+            h="45px"
+            borderRadius="lg"
+            borderWidth="2px"
+            _focus={{ borderColor: "purple.500", boxShadow: "0 0 0 1px purple.500" }}
+            transition="all 0.2s"
             onChange={(e) => setPassword(e.target.value)}
           />
-          <InputRightElement width="4.5rem">
-            <Button h="1.75rem" size={{ base: "xs", md: "sm" }} onClick={handleClick} variant="ghost">
+          <InputRightElement width="4.5rem" h="45px">
+            <Button size="sm" onClick={handleClick} variant="ghost" _hover={{ bg: "transparent", color: "purple.600" }}>
               {show ? "Hide" : "Show"}
             </Button>
           </InputRightElement>
         </InputGroup>
       </FormControl>
 
-      <FormControl isRequired>
-        <FormLabel fontSize={{ base: "sm", md: "md" }}>Confirm Password</FormLabel>
+      <FormControl isRequired id="confirm-password">
+        <FormLabel fontSize="sm" fontWeight="600" color="gray.700">Confirm Password</FormLabel>
         <InputGroup>
           <Input
             type={show ? "text" : "password"}
             placeholder="Confirm password"
-            fontSize={{ base: "sm", md: "md" }}
-            p={{ base: 2, md: 3 }}
-            borderRadius="md"
-            _focus={{ borderColor: "#667eea", boxShadow: "0 0 0 1px #667eea" }}
+            fontSize="md"
+            h="45px"
+            borderRadius="lg"
+            borderWidth="2px"
+            _focus={{ borderColor: "purple.500", boxShadow: "0 0 0 1px purple.500" }}
+            transition="all 0.2s"
             onChange={(e) => setConfirmPassword(e.target.value)}
           />
-          <InputRightElement width="4.5rem">
-            <Button h="1.75rem" size={{ base: "xs", md: "sm" }} onClick={handleClick} variant="ghost">
+          <InputRightElement width="4.5rem" h="45px">
+            <Button size="sm" onClick={handleClick} variant="ghost" _hover={{ bg: "transparent", color: "purple.600" }}>
               {show ? "Hide" : "Show"}
             </Button>
           </InputRightElement>
         </InputGroup>
       </FormControl>
 
-      <FormControl>
-        <FormLabel fontSize={{ base: "sm", md: "md" }}>Upload Picture</FormLabel>
+      <FormControl id="pic">
+        <FormLabel fontSize="sm" fontWeight="600" color="gray.700">Upload Picture</FormLabel>
         <Input
           type="file"
+          p={1.5}
           accept="image/*"
-          fontSize={{ base: "xs", md: "sm" }}
-          p={{ base: 1, md: 2 }}
-          borderRadius="md"
-          _focus={{ borderColor: "#667eea", boxShadow: "0 0 0 1px #667eea" }}
+          h="45px"
+          borderRadius="lg"
+          borderWidth="2px"
+          _focus={{ borderColor: "purple.500" }}
           onChange={(e) => postDetails(e.target.files[0])}
         />
       </FormControl>
 
       <Button
-        bgGradient="linear(135deg, #667eea 0%, #764ba2 100%)"
+        bgGradient="linear(to-r, purple.500, pink.500)"
         color="white"
-        _hover={{ opacity: 0.9 }}
+        _hover={{ 
+          bgGradient: "linear(to-r, purple.600, pink.600)",
+          transform: "translateY(-2px)",
+          boxShadow: "lg" 
+        }}
+        _active={{ transform: "translateY(0)" }}
         width="100%"
-        mt={3}
+        h="45px"
+        mt={4}
         isLoading={loading}
         onClick={submitHandler}
-        fontSize={{ base: "sm", md: "md" }}
-        p={{ base: 3, md: 4 }}
-        borderRadius="md"
+        fontSize="lg"
+        fontWeight="bold"
+        borderRadius="lg"
+        transition="all 0.2s"
       >
         Sign Up
       </Button>
