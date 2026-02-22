@@ -12,7 +12,7 @@ import TypingIndicator from "./TypingIndicator";
 import io from "socket.io-client";
 import UpdateGroupChatModal from "./miscellaneous/UpdateGroupChatModal";
 import { ChatState } from "../Context/ChatProvider";
-const ENDPOINT = ""; // Use relative for production (same origin)
+const ENDPOINT = process.env.REACT_APP_API_URL || "http://localhost:5000"; // Use Render backend URL in production
 var socket, selectedChatCompare;
 
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
