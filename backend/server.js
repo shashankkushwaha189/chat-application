@@ -12,8 +12,14 @@ dotenv.config();
 connectDB();
 const app = express();
 
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://chat-application-smoky-seven.vercel.app",
+  process.env.CLIENT_URL,
+].filter(Boolean);
+
 app.use(cors({
-  origin: process.env.CLIENT_URL || "http://localhost:3000",
+  origin: allowedOrigins,
   credentials: true
 }));
 
@@ -57,7 +63,7 @@ const server = app.listen(PORT, () => {
 const io = require("socket.io")(server, {
   pingInterval: 60000,
   cors: {
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    origin: allowedOrigins,
   },
 });
 
