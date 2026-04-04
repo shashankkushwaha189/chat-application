@@ -8,7 +8,7 @@ import ChatLoading from "./ChatLoading";
 import GroupChatModal from "./miscellaneous/GroupChatModal";
 import { ChatState } from "../Context/ChatProvider";
 
-const MyChats = ({ fetchAgain }) => {
+const MyChats = ({ fetchAgain, onClose }) => {
   const [loggedUser, setLoggedUser] = useState();
 
   const { selectedChat, setSelectedChat, user, chats, setChats, notification } = ChatState();
@@ -53,13 +53,13 @@ const MyChats = ({ fetchAgain }) => {
       flexDir="column"
       alignItems="center"
       p={{ base: 3, md: 4 }}
-      bg="rgba(255, 255, 255, 0.9)"
-      backdropFilter="blur(10px)"
+      bg="rgba(255, 255, 255, 0.25)"
+      backdropFilter="blur(20px) saturate(180%)"
       w={{ base: "100%", md: "31%" }}
-      borderRadius="2xl"
+      borderRadius="3xl"
       borderWidth="1px"
-      borderColor="purple.100"
-      boxShadow="0 4px 20px rgba(0, 0, 0, 0.05)"
+      borderColor="rgba(255, 255, 255, 0.4)"
+      boxShadow="0 8px 32px rgba(31, 38, 135, 0.1)"
       overflowY="hidden"
     >
       <Box
@@ -106,8 +106,8 @@ const MyChats = ({ fetchAgain }) => {
       >
         <Tabs variant="soft-rounded" colorScheme="purple" isFitted w="100%" h="100%" display="flex" flexDir="column">
           <TabList mb="1em" px={3} pt={2}>
-            <Tab _selected={{ color: "white", bg: "purple.500" }} fontSize="sm">Personal</Tab>
-            <Tab _selected={{ color: "white", bg: "purple.500" }} fontSize="sm">Groups</Tab>
+            <Tab _selected={{ color: "white", bgGradient: "linear(to-r, purple.500, purple.400)", boxShadow: "0 4px 12px rgba(128, 90, 213, 0.4)" }} fontSize="sm" fontWeight="600" transition="all 0.3s" mr={2}>Personal</Tab>
+            <Tab _selected={{ color: "white", bgGradient: "linear(to-r, purple.500, purple.400)", boxShadow: "0 4px 12px rgba(128, 90, 213, 0.4)" }} fontSize="sm" fontWeight="600" transition="all 0.3s">Groups</Tab>
           </TabList>
           <TabPanels flex={1} overflowY="hidden">
             <TabPanel p={0} h="100%">
@@ -121,6 +121,7 @@ const MyChats = ({ fetchAgain }) => {
                       setSelectedChat={setSelectedChat}
                       loggedUser={loggedUser}
                       getNotificationCount={getNotificationCount}
+                      onClose={onClose}
                     />
                   ))}
                   {chats.filter(c => !c.isGroupChat).length === 0 && (
@@ -142,6 +143,7 @@ const MyChats = ({ fetchAgain }) => {
                       setSelectedChat={setSelectedChat}
                       loggedUser={loggedUser}
                       getNotificationCount={getNotificationCount}
+                      onClose={onClose}
                     />
                   ))}
                   {chats.filter(c => c.isGroupChat).length === 0 && (
@@ -159,23 +161,27 @@ const MyChats = ({ fetchAgain }) => {
   );
 };
 
-const ChatListItem = ({ chat, selectedChat, setSelectedChat, loggedUser, getNotificationCount }) => {
+const ChatListItem = ({ chat, selectedChat, setSelectedChat, loggedUser, getNotificationCount, onClose }) => {
   return (
     <Box
-      onClick={() => setSelectedChat(chat)}
+      onClick={() => {
+        setSelectedChat(chat);
+        if (onClose) onClose();
+      }}
       cursor="pointer"
       bg={selectedChat === chat ? "purple.500" : "white"}
       color={selectedChat === chat ? "white" : "black"}
       px={4}
-      py={3}
-      borderRadius="xl"
-      transition="all 0.2s"
+      py={4}
+      borderRadius="2xl"
+      transition="all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)"
       borderWidth="1px"
-      borderColor={selectedChat === chat ? "purple.500" : "gray.100"}
-      boxShadow={selectedChat === chat ? "0 4px 12px rgba(128, 90, 213, 0.3)" : "sm"}
+      borderColor={selectedChat === chat ? "purple.400" : "rgba(255, 255, 255, 0.6)"}
+      boxShadow={selectedChat === chat ? "0 10px 20px rgba(128, 90, 213, 0.3)" : "0 2px 10px rgba(0,0,0,0.02)"}
       _hover={{
-        bg: selectedChat === chat ? "purple.600" : "gray.50",
-        transform: "translateX(5px)"
+        bg: selectedChat === chat ? "purple.600" : "rgba(255, 255, 255, 0.8)",
+        transform: "translateY(-2px)",
+        boxShadow: "0 8px 20px rgba(0,0,0,0.06)"
       }}
       display="flex"
       justifyContent="space-between"
@@ -191,14 +197,14 @@ const ChatListItem = ({ chat, selectedChat, setSelectedChat, loggedUser, getNoti
           {chat.isGroupChat ? <FaUsers size={18} /> : <FaUser size={18} />}
         </Box>
         <Box>
-          <Text fontWeight="600" fontSize="md">
+          <Text fontWeight="700" fontSize="md" letterSpacing="tight">
             {!chat.isGroupChat
               ? getSender(loggedUser, chat.users)
               : chat.chatName}
           </Text>
           {chat.latestMessage && (
             <Text fontSize="xs" mt={1} opacity={selectedChat === chat ? 0.9 : 0.7} isTruncated maxW="200px">
-              <b>{chat.latestMessage.sender.name === loggedUser?.name ? "You" : chat.latestMessage.sender.name}: </b>
+              <b>{chat.latestMessage.sender?.name === loggedUser?.name ? "You" : chat.latestMessage.sender?.name}: </b>
               {chat.latestMessage.messageType === "text" || !chat.latestMessage.messageType 
                 ? (chat.latestMessage.content.length > 50
                   ? chat.latestMessage.content.substring(0, 51) + "..."

@@ -18,8 +18,10 @@ import {
   useDisclosure,
   useToast,
   Badge,
+  IconButton,
 } from "@chakra-ui/react";
-import { BellIcon, ChevronDownIcon } from "@chakra-ui/icons";
+import { LuBell, LuChevronDown, LuSearch } from "react-icons/lu";
+import { HamburgerIcon } from "@chakra-ui/icons";
 
 import React, { useState } from "react";
 import { getSender } from "../../config/ChatLogics";
@@ -30,7 +32,7 @@ import axios from "axios";
 import ChatLoading from "../ChatLoading";
 import UserListItem from "../UserAvatar/UserListItem";
 
-const SideDrawer = () => {
+const SideDrawer = ({ onOpenChatList }) => {
   const navigate = useNavigate();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
@@ -111,33 +113,52 @@ const SideDrawer = () => {
         display="flex"
         justifyContent="space-between"
         alignItems="center"
-        bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+        bg="rgba(255, 255, 255, 0.4)"
+        backdropFilter="blur(20px) saturate(180%)"
         w="100%"
         p={{ base: "8px 10px", md: "10px 15px" }}
-        borderWidth="0"
-        boxShadow="md"
+        borderBottomWidth="1px"
+        borderColor="whiteAlpha.600"
+        boxShadow="0 8px 32px rgba(31, 38, 135, 0.1)"
+        transition="all 0.3s ease"
+        position="relative"
+        zIndex="10"
       >
-        <Tooltip label="Search Users to chat" hasArrow placement="bottom-end">
-          <Button
+        <Box display="flex" alignItems="center" gap={{ base: 1, md: 2 }}>
+          <IconButton
+            display={{ base: "flex", md: "none" }}
+            icon={<HamburgerIcon />}
+            onClick={onOpenChatList}
             variant="ghost"
-            onClick={onOpen}
-            leftIcon={<i className="fas fa-search"></i>}
             color="white"
             _hover={{ bg: "rgba(255,255,255,0.2)" }}
-            fontSize={{ base: "sm", md: "md" }}
-            size={{ base: "sm", md: "md" }}
-          >
-            <Text display={{ base: "none", md: "flex" }} ml={2}>
-              Search
-            </Text>
-          </Button>
-        </Tooltip>
+            size="sm"
+            aria-label="Open Chat List"
+          />
+          <Tooltip label="Search Users to chat" hasArrow placement="bottom-end">
+            <Button
+              variant="ghost"
+              onClick={onOpen}
+              leftIcon={<LuSearch />}
+              color="white"
+              _hover={{ bg: "rgba(255,255,255,0.2)" }}
+              fontSize={{ base: "xs", md: "md" }}
+              size={{ base: "sm", md: "md" }}
+            >
+              <Text display={{ base: "none", md: "flex" }} ml={2}>
+                Search
+              </Text>
+            </Button>
+          </Tooltip>
+        </Box>
         <Text
           fontSize="3xl"
           fontFamily="Inter"
-          fontWeight="800"
-          bgGradient="linear(to-l, #7928CA, #FF0080)"
+          fontWeight="900"
+          letterSpacing="tight"
+          bgGradient="linear(to-r, purple.700, purple.500)"
           bgClip="text"
+          textShadow="0px 1px 2px rgba(0,0,0,0.1)"
         >
           Chat -X
         </Text>
@@ -157,7 +178,7 @@ const SideDrawer = () => {
                   {notification.length}
                 </Badge>
               )}
-              <BellIcon fontSize="2xl" m={1} color="gray.600" _hover={{ color: "purple.500" }} transition="all 0.2s" />
+              <LuBell fontSize="2xl" m={1} color="white" _hover={{ color: "purple.200" }} transition="all 0.2s" />
             </MenuButton>
             <MenuList pl={2} borderColor="purple.100" boxShadow="lg" color="black">
               {!notification.length && <MenuItem _hover={{ bg: "transparent" }} cursor="default">No New Messages</MenuItem>}
@@ -178,7 +199,7 @@ const SideDrawer = () => {
             </MenuList>
           </Menu>
           <Menu>
-            <MenuButton as={Button} bg="white" rightIcon={<ChevronDownIcon />} _hover={{ bg: "purple.50" }}>
+            <MenuButton as={Button} bg="white" rightIcon={<LuChevronDown />} _hover={{ bg: "purple.50" }}>
               <Avatar
                 size="sm"
                 cursor="pointer"

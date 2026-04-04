@@ -10,8 +10,13 @@ const UserListItem = ({ user, handleFunction }) => {
         onClick={handleFunction}
         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleFunction(); }}
         cursor="pointer"
-        bg="#E8E8E8"
-        _hover={{ background: "#38B2AC", color: "white", transform: "translateX(2px)" }}
+        bg="white"
+        _hover={{ 
+          background: "purple.500", 
+          color: "white", 
+          transform: "translateX(4px)",
+          boxShadow: "0 4px 12px rgba(128, 90, 213, 0.3)"
+        }}
         w="100%"
         d="flex"
         alignItems="center"
@@ -19,8 +24,10 @@ const UserListItem = ({ user, handleFunction }) => {
         px={{ base: 2, md: 3 }}
         py={{ base: 1.5, md: 2 }}
         mb={2}
-        borderRadius="lg"
-        transition="all 0.2s ease"
+        borderRadius="xl"
+        borderWidth="1px"
+        borderColor="gray.100"
+        transition="all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)"
     >
         <Avatar 
         mr={3}

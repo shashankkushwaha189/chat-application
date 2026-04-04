@@ -319,8 +319,13 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       }
     });
 
+    socket.on("message deleted", (messageId) => {
+      setMessages((prevMessages) => prevMessages.filter((m) => m._id !== messageId));
+    });
+
     return () => {
       socket.off("message recieved");
+      socket.off("message deleted");
     };
   }, [user, setNotification, setFetchAgain]);
 
@@ -376,7 +381,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                 bg="purple.50"
                 _hover={{ bg: "purple.100" }}
                 borderRadius="full"
-                size="sm"
+                size="md"
               />
               {messages &&
                 (!selectedChat.isGroupChat ? (
@@ -400,7 +405,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                 />
               )}
               <Menu>
-                <MenuButton as={IconButton} icon={<ChevronDownIcon />} size="sm" variant="ghost" />
+                <MenuButton as={IconButton} icon={<ChevronDownIcon />} size="md" variant="ghost" />
                 <MenuList color="black" fontSize="md">
                   <MenuItem 
                     icon={<DeleteIcon />} 
@@ -426,15 +431,16 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
             display="flex"
             flexDir="column"
             p={3}
-            bg="rgba(240, 242, 245, 0.8)"
-            backdropFilter="blur(5px)"
+            bg="rgba(255, 255, 255, 0.5)"
+            backdropFilter="blur(20px)"
             w="100%"
             flex="1"
             borderRadius="2xl"
             overflow="hidden"
             overflowX="hidden"
-            borderWidth="0"
-            borderColor="transparent"
+            borderWidth="1px"
+            borderColor="whiteAlpha.800"
+            boxShadow="0 4px 15px rgba(0, 0, 0, 0.05), inset 0 2px 10px rgba(255, 255, 255, 0.5)"
           >
             {loading ? (
               <Spinner
@@ -451,7 +457,15 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                 flex="1"
                 mb={2}
               >
-                <ScrollableChat messages={messages} setMessages={setMessages} />
+                <ScrollableChat 
+                  messages={messages} 
+                  setMessages={setMessages} 
+                  onDeleteMessage={(messageId) => {
+                    if (socket) {
+                      socket.emit("delete message", { messageId, chat: selectedChat, senderId: user._id });
+                    }
+                  }}
+                />
               </Box>
             )}
 
@@ -466,15 +480,17 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                   <TypingIndicator />
                 </Box>
               )}
-              <Box display="flex" gap={2} alignItems="center" bg="white" p={2} borderRadius="xl" boxShadow="sm">
+              <Box display="flex" gap={3} alignItems="center" bg="rgba(255, 255, 255, 0.7)" backdropFilter="blur(20px)" p={2} borderRadius="full" borderWidth="1px" borderColor="whiteAlpha.800" boxShadow="0 8px 24px rgba(31, 38, 135, 0.05)">
                 <Input
                   variant="unstyled"
                   placeholder={isRecording ? "Recording..." : "Type a message..."}
                   value={newMessage}
                   onChange={typingHandler}
                   px={4}
+                  py={2}
                   fontSize={{ base: "sm", md: "md" }}
                   isDisabled={isRecording}
+                  _placeholder={{ color: "gray.500" }}
                 />
                 
                 <Flex gap={1} mr={1}>
@@ -484,7 +500,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                       icon={<i className="fas fa-plus"></i>}
                       variant="ghost"
                       colorScheme="purple"
-                      size="sm"
+                      size="md"
                       isDisabled={mediaLoading || isRecording}
                     />
                     <MenuList color="black">
@@ -535,10 +551,10 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                   icon={mediaLoading ? <Spinner size="xs" /> : (isRecording ? <FaStop /> : <i className="fas fa-paper-plane"></i>)}
                   onClick={() => isRecording ? stopRecording() : sendMessage({ key: "Enter" })}
                   colorScheme={isRecording ? "red" : "purple"}
-                  borderRadius="lg"
+                  borderRadius="full"
                   size="md"
-                  transition="all 0.2s"
-                  _hover={{ transform: "scale(1.1)" }}
+                  transition="all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)"
+                  _hover={{ transform: "scale(1.05)", boxShadow: "0 4px 12px rgba(128, 90, 213, 0.4)" }}
                   isDisabled={mediaLoading}
                 />
               </Box>

@@ -105,6 +105,15 @@ io.on("connection", (socket) => {
     });
   });
 
+  socket.on("delete message", (messageData) => {
+    const chat = messageData.chat;
+    if (!chat.users) return;
+    chat.users.forEach((user) => {
+      if (user._id === messageData.senderId) return;
+      io.to(user._id).emit("message deleted", messageData.messageId);
+    });
+  });
+
   socket.on("disconnect", () => {
     console.log("USER DISCONNECTED");
     const disconnectedUser = onlineUsers.get(socket.id);

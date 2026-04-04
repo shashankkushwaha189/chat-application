@@ -12,7 +12,7 @@ import { ChatState } from "../Context/ChatProvider";
 
 const ENDPOINT = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
-const ScrollableChat = ({ messages, setMessages }) => {
+const ScrollableChat = ({ messages, setMessages, onDeleteMessage }) => {
   const { user, selectedChat } = ChatState();
   const toast = useToast();
 
@@ -25,6 +25,9 @@ const ScrollableChat = ({ messages, setMessages }) => {
       };
       await axios.delete(`/api/message/${messageId}`, config);
       setMessages((prev) => prev.filter((m) => m._id !== messageId));
+      if (onDeleteMessage) {
+        onDeleteMessage(messageId);
+      }
       toast({
         title: "Message Deleted",
         status: "success",
@@ -83,14 +86,14 @@ const ScrollableChat = ({ messages, setMessages }) => {
             >
               {isSameSender(messages, m, i, user._id) ||
                 isLastMessage(messages, i, user._id) ? (
-                <Tooltip label={m.sender.name} placement="bottom-start" hasArrow>
+                <Tooltip label={m.sender?.name} placement="bottom-start" hasArrow>
                   <Avatar
                     mt="7px"
                     mr={1}
                     size="xs"
                     cursor="pointer"
-                    name={m.sender.name}
-                    src={m.sender.pic}
+                    name={m.sender?.name}
+                    src={m.sender?.pic}
                   />
                 </Tooltip>
               ) : (
@@ -98,18 +101,21 @@ const ScrollableChat = ({ messages, setMessages }) => {
               )}
                   <Box
                     style={{
-                      backgroundColor: m.sender._id === user._id ? "#805AD5" : "white",
-                      color: m.sender._id === user._id ? "white" : "black",
+                      backgroundColor: m.sender._id === user._id ? "#805AD5" : "rgba(255, 255, 255, 0.9)",
+                      color: m.sender._id === user._id ? "white" : "#1A202C",
                       marginLeft: 10,
                       marginTop: isSameUser(messages, m, i, user._id) ? 3 : 10,
-                      borderRadius: m.sender._id === user._id ? "20px 20px 0px 20px" : "20px 20px 20px 0px",
-                      padding: "8px 16px",
+                      borderRadius: m.sender._id === user._id ? "20px 20px 4px 20px" : "20px 20px 20px 4px",
+                      padding: "10px 18px",
                       fontSize: "15px",
-                      fontWeight: "400",
+                      fontWeight: "500",
+                      lineHeight: "1.5",
+                      letterSpacing: "-0.01em",
+                      boxShadow: m.sender._id === user._id ? "0 4px 14px rgba(128, 90, 213, 0.3)" : "0 4px 14px rgba(0, 0, 0, 0.05)",
                       transition: "all 0.2s",
                       display: "flex",
                       flexDirection: "column",
-                      gap: "8px",
+                      gap: "6px",
                       minWidth: m.messageType === "video" ? "250px" : "auto",
                       textAlign: "left",
                     }}
@@ -122,7 +128,7 @@ const ScrollableChat = ({ messages, setMessages }) => {
                           color: "#805AD5",
                           marginBottom: "4px"
                         }}>
-                          {m.sender.name}
+                          {m.sender?.name}
                         </span>
                       )
                     )}

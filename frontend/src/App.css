@@ -10,12 +10,23 @@
 .App {
   min-height: 100vh;
   display: flex;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  background-attachment: fixed;
-  background-size: cover;
-  background-position: center;
-  color: #2d3748;
-  font-family: 'Work Sans', sans-serif;
+  background: linear-gradient(-45deg, #a18cd1, #fbc2eb, #84fab0, #8fd3f4);
+  background-size: 400% 400%;
+  animation: gradientBG 15s ease infinite;
+  color: #1A202C;
+  font-family: 'Inter', 'Outfit', 'Work Sans', sans-serif;
+}
+
+@keyframes gradientBG {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 /* Scrollbar Styling */
@@ -47,7 +58,7 @@
 
 @media (max-width: 480px) {
   .App {
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
     font-size: 14px;
   }
 }
