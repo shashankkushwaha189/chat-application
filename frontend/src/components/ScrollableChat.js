@@ -2,12 +2,15 @@ import { Avatar, Tooltip, useToast, Menu, MenuButton, MenuList, MenuItem, Box } 
 import React from "react";
 import ScrollableFeed from "react-scrollable-feed";
 import axios from "axios";
+import { saveAs } from "file-saver";
 import {
   isLastMessage,
   isSameSender,
   isSameUser,
 } from "../config/ChatLogics";
 import { ChatState } from "../Context/ChatProvider";
+
+const ENDPOINT = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
 const ScrollableChat = ({ messages, setMessages }) => {
   const { user, selectedChat } = ChatState();
@@ -35,6 +38,26 @@ const ScrollableChat = ({ messages, setMessages }) => {
         description: "Failed to delete the message",
         status: "error",
         duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+    }
+  };
+
+  const getFullUrl = (url) => {
+    if (!url) return "";
+    if (url.startsWith("http")) return url;
+    return `${ENDPOINT}${url}`;
+  };
+
+  const handleDownload = (fileUrl, fileName) => {
+    try {
+      saveAs(getFullUrl(fileUrl), fileName || "download");
+    } catch (error) {
+      toast({
+        title: "Download Failed",
+        status: "error",
+        duration: 3000,
         isClosable: true,
         position: "bottom",
       });
@@ -73,12 +96,7 @@ const ScrollableChat = ({ messages, setMessages }) => {
               ) : (
                 <div style={{ width: "24px" }}></div>
               )}
-                <Menu isLazy>
-                  <MenuButton
-                    as={Box}
-                    _focus={{ boxShadow: "none" }}
-                    _active={{ bg: "transparent" }}
-                    border="none"
+                  <Box
                     style={{
                       backgroundColor: m.sender._id === user._id ? "#805AD5" : "white",
                       color: m.sender._id === user._id ? "white" : "black",
@@ -93,9 +111,7 @@ const ScrollableChat = ({ messages, setMessages }) => {
                       flexDirection: "column",
                       gap: "8px",
                       minWidth: m.messageType === "video" ? "250px" : "auto",
-                      cursor: "pointer",
                       textAlign: "left",
-                      boxShadow: "none"
                     }}
                   >
                     {selectedChat.isGroupChat && m.sender._id !== user._id && (
@@ -110,40 +126,57 @@ const ScrollableChat = ({ messages, setMessages }) => {
                         </span>
                       )
                     )}
-                    {m.messageType === "text" || !m.messageType ? (
-                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                        {m.content}
-                      </div>
-                    ) : m.messageType === "audio" || m.messageType === "voice" ? (
-                      <audio controls style={{ maxHeight: "40px" }}>
-                        <source src={`${m.fileUrl}`} type="audio/wav" />
-                        Your browser does not support the audio element.
-                      </audio>
+
+                    {m.messageType === "audio" || m.messageType === "voice" ? (
+                      <audio controls src={getFullUrl(m.fileUrl)} style={{ maxHeight: "40px", width: "250px" }} />
                     ) : m.messageType === "video" ? (
-                      <video controls style={{ borderRadius: "10px", maxWidth: "100%" }}>
-                        <source src={`${m.fileUrl}`} type="video/mp4" />
-                        Your browser does not support the video element.
-                      </video>
+                      <video controls src={getFullUrl(m.fileUrl)} style={{ borderRadius: "10px", maxWidth: "100%" }} />
                     ) : m.messageType === "image" ? (
                       <img 
-                        src={`${m.fileUrl}`} 
+                        src={getFullUrl(m.fileUrl)} 
                         alt="Message" 
                         style={{ borderRadius: "10px", maxWidth: "100%", maxHeight: "300px", objectFit: "contain" }} 
                       />
                     ) : null}
-                  </MenuButton>
-                  {m.sender._id === user._id && (
-                    <MenuList color="black">
-                      <MenuItem 
-                        icon={<i className="fas fa-trash"></i>} 
-                        color="red.500"
-                        onClick={() => deleteMessageHandler(m._id)}
+
+                    <Menu isLazy>
+                      <MenuButton
+                        as={Box}
+                        cursor="pointer"
+                        _hover={{ opacity: 0.8 }}
+                        width="100%"
                       >
-                        Delete Message
-                      </MenuItem>
-                    </MenuList>
-                  )}
-                </Menu>
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px", fontSize: m.messageType !== "text" ? "12px" : "15px", opacity: m.messageType !== "text" ? 0.8 : 1 }}>
+                          {m.content}
+                          {m.messageType && m.messageType !== "text" && (
+                            <span style={{ fontSize: "10px", marginLeft: "10px" }}>▼ options</span>
+                          )}
+                        </div>
+                      </MenuButton>
+                      
+                      {(m.sender._id === user._id || (m.messageType && m.messageType !== "text")) && (
+                        <MenuList color="black">
+                          {m.messageType && m.messageType !== "text" && (
+                            <MenuItem 
+                              icon={<i className="fas fa-download"></i>}
+                              onClick={() => handleDownload(m.fileUrl, m.content || "download")}
+                            >
+                              Download {m.messageType.charAt(0).toUpperCase() + m.messageType.slice(1)}
+                            </MenuItem>
+                          )}
+                          {m.sender._id === user._id && (
+                            <MenuItem 
+                              icon={<i className="fas fa-trash"></i>} 
+                              color="red.500"
+                              onClick={() => deleteMessageHandler(m._id)}
+                            >
+                              Delete Message
+                            </MenuItem>
+                          )}
+                        </MenuList>
+                      )}
+                    </Menu>
+                  </Box>
             </div>
           </div>
         ))}
