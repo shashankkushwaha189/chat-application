@@ -22,6 +22,10 @@ import {
   AlertDialogContent,
   AlertDialogOverlay,
   Text,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem
 } from "@chakra-ui/react";
 import axios from "axios";
 import { useState, useRef } from "react";
@@ -111,6 +115,42 @@ const UpdateGroupChatModal = ({ fetchMessages, fetchAgain, setFetchAgain }) => {
     }
   };
 
+  const handleAddAdmin = async (user1) => {
+    try {
+      setLoading(true);
+      const config = { headers: { Authorization: `Bearer ${user.token}` } };
+      const { data } = await axios.put(`/api/chat/groupaddadmin`, {
+        chatId: selectedChat._id,
+        userId: user1._id,
+      }, config);
+      setSelectedChat(data);
+      if (setFetchAgain) setFetchAgain(!fetchAgain);
+      setChats(chats.map((c) => (c._id === data._id ? data : c)));
+      setLoading(false);
+    } catch (error) {
+      toast({ title: "Error Occured!", description: error.response?.data?.message || "Failed to make admin", status: "error", duration: 5000, isClosable: true, position: "bottom" });
+      setLoading(false);
+    }
+  };
+
+  const handleRemoveAdmin = async (user1) => {
+    try {
+      setLoading(true);
+      const config = { headers: { Authorization: `Bearer ${user.token}` } };
+      const { data } = await axios.put(`/api/chat/groupremoveadmin`, {
+        chatId: selectedChat._id,
+        userId: user1._id,
+      }, config);
+      setSelectedChat(data);
+      if (setFetchAgain) setFetchAgain(!fetchAgain);
+      setChats(chats.map((c) => (c._id === data._id ? data : c)));
+      setLoading(false);
+    } catch (error) {
+      toast({ title: "Error Occured!", description: error.response?.data?.message || "Failed to remove admin", status: "error", duration: 5000, isClosable: true, position: "bottom" });
+      setLoading(false);
+    }
+  };
+
   const handleAddUser = async (user1) => {
     if (selectedChat.users.find((u) => u._id === user1._id)) {
       toast({
@@ -168,7 +208,8 @@ const UpdateGroupChatModal = ({ fetchMessages, fetchAgain, setFetchAgain }) => {
   };
 
   const handleRemove = async (user1) => {
-    if (selectedChat.groupAdmin._id !== user._id && user1._id !== user._id) {
+    const isViewerAdmin = selectedChat.groupAdmin._id === user._id || selectedChat.groupAdmins?.some(a => a._id === user._id);
+    if (!isViewerAdmin && user1._id !== user._id) {
       toast({
         title: "Only admins can remove someone!",
         status: "error",
@@ -250,14 +291,46 @@ const UpdateGroupChatModal = ({ fetchMessages, fetchAgain, setFetchAgain }) => {
                 Group Members ({selectedChat.users.length})
               </Text>
               <Box d="flex" flexWrap="wrap" p={2} bg="gray.50" borderRadius="lg" minH="50px">
-                {selectedChat.users.map((u) => (
-                  <UserBadgeItem
-                    key={u._id}
-                    user={u}
-                    admin={selectedChat.groupAdmin}
-                    handleFunction={() => handleRemove(u)}
-                  />
-                ))}
+                {selectedChat.users.map((u) => {
+                  const isViewerAdmin = selectedChat.groupAdmin._id === user._id || selectedChat.groupAdmins?.some(a => a._id === user._id);
+                  const isTargetAdmin = selectedChat.groupAdmin._id === u._id || selectedChat.groupAdmins?.some(a => a._id === u._id);
+                  const isTargetCreator = selectedChat.groupAdmin._id === u._id;
+
+                  if (!isViewerAdmin) {
+                    return (
+                      <UserBadgeItem
+                        key={u._id}
+                        user={u}
+                        admin={selectedChat.groupAdmin}
+                        admins={selectedChat.groupAdmins}
+                        handleFunction={() => {}}
+                      />
+                    );
+                  }
+
+                  return (
+                    <Menu key={u._id} isLazy>
+                      <MenuButton>
+                        <UserBadgeItem
+                          user={u}
+                          admin={selectedChat.groupAdmin}
+                          admins={selectedChat.groupAdmins}
+                          handleFunction={() => {}}
+                        />
+                      </MenuButton>
+                      <MenuList color="black">
+                        {!isTargetAdmin ? (
+                          <MenuItem onClick={() => handleAddAdmin(u)}>Make Admin</MenuItem>
+                        ) : (
+                          !isTargetCreator && user._id !== u._id && <MenuItem onClick={() => handleRemoveAdmin(u)}>Dismiss as Admin</MenuItem>
+                        )}
+                        {u._id !== user._id && (
+                          <MenuItem color="red.500" onClick={() => handleRemove(u)}>Remove from Group</MenuItem>
+                        )}
+                      </MenuList>
+                    </Menu>
+                  );
+                })}
               </Box>
             </Box>
 

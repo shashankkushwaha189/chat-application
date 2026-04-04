@@ -215,8 +215,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       };
 
       mediaRecorder.current.onstop = async () => {
-        const audioBlob = new Blob(audioChunks.current, { type: "audio/wav" });
-        const file = new File([audioBlob], "voice_message.wav", { type: "audio/wav" });
+        const audioBlob = new Blob(audioChunks.current, { type: "audio/webm" });
+        const file = new File([audioBlob], "voice_message.webm", { type: "audio/webm" });
         
         const formData = new FormData();
         formData.append("file", file);
@@ -242,6 +242,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           });
         } finally {
           setMediaLoading(false);
+          setIsRecording(false);
         }
       };
 
@@ -262,7 +263,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const stopRecording = () => {
     if (mediaRecorder.current && isRecording) {
       mediaRecorder.current.stop();
-      setIsRecording(false);
       mediaRecorder.current.stream.getTracks().forEach(track => track.stop());
     }
   };
@@ -531,15 +531,15 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                 </Flex>
 
                 <IconButton
-                  aria-label="Send message"
-                  icon={mediaLoading ? <Spinner size="xs" /> : <i className="fas fa-paper-plane"></i>}
-                  onClick={() => sendMessage({ key: "Enter" })}
-                  colorScheme="purple"
+                  aria-label={isRecording ? "Stop recording" : "Send message"}
+                  icon={mediaLoading ? <Spinner size="xs" /> : (isRecording ? <FaStop /> : <i className="fas fa-paper-plane"></i>)}
+                  onClick={() => isRecording ? stopRecording() : sendMessage({ key: "Enter" })}
+                  colorScheme={isRecording ? "red" : "purple"}
                   borderRadius="lg"
                   size="md"
                   transition="all 0.2s"
                   _hover={{ transform: "scale(1.1)" }}
-                  isDisabled={mediaLoading || isRecording}
+                  isDisabled={mediaLoading}
                 />
               </Box>
             </FormControl>

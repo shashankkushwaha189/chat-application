@@ -1,7 +1,10 @@
 import { CloseIcon } from "@chakra-ui/icons";
 import { Badge } from "@chakra-ui/react";
 
-const UserBadgeItem = ({ user, handleFunction, admin }) => {
+const UserBadgeItem = ({ user, handleFunction, admin, admins }) => {
+  const isAdmin = (admin && (admin._id === user._id || admin === user._id)) || 
+                  (admins && admins.some(a => a._id === user._id || a === user._id));
+
   return (
     <Badge
       px={{ base: 1.5, md: 2 }}
@@ -18,7 +21,7 @@ const UserBadgeItem = ({ user, handleFunction, admin }) => {
       _hover={{ shadow: "md", transform: "scale(1.05)" }}
     >
       {user.name}
-      {admin && (admin._id === user._id || admin === user._id) && (
+      {isAdmin && (
         <span style={{ fontSize: "8px", marginLeft: "5px", verticalAlign: "middle", fontWeight: "bold" }}>
           (Admin)
         </span>
