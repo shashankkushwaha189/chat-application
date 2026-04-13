@@ -356,7 +356,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       socket.off("message recieved");
       socket.off("message deleted");
     };
-  }, [user, setNotification, setFetchAgain]);
+  }, [user, setNotification, setFetchAgain, toast]);
 
   const typingHandler = (e) => {
     setNewMessage(e.target.value);
