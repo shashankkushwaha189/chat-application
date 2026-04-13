@@ -22,45 +22,40 @@ const HomePage = () => {
         display="flex"
         justifyContent="center"
         p={4}
-        bg="rgba(255, 255, 255, 0.4)"
-        backdropFilter="blur(20px) saturate(180%)"
+        bg="white"
         w="100%"
         m="40px 0 15px 0"
-        borderRadius="3xl"
+        borderRadius="xl"
         borderWidth="1px"
-        borderColor="whiteAlpha.600"
-        boxShadow="0 8px 32px rgba(31, 38, 135, 0.1)"
+        borderColor="gray.200"
+        boxShadow="sm"
       >
         <Text
           textAlign="center"
-          fontSize="5xl"
-          fontWeight="900"
-          letterSpacing="tight"
+          fontSize="4xl"
+          fontWeight="600"
           fontFamily="Inter"
-          bgGradient="linear(to-r, purple.700, purple.500)"
-          bgClip="text"
-          textShadow="0px 1px 2px rgba(0,0,0,0.1)"
+          color="#128C7E"
         >
           Chat -X
         </Text>
       </Box>
       <Box
-        bg="rgba(255, 255, 255, 0.4)"
-        backdropFilter="blur(20px) saturate(180%)"
+        bg="white"
         w="100%"
         p={8}
-        borderRadius="3xl"
+        borderRadius="xl"
         borderWidth="1px"
-        borderColor="whiteAlpha.600"
-        boxShadow="0 8px 32px rgba(31, 38, 135, 0.1)"
+        borderColor="gray.200"
+        boxShadow="sm"
         color="black"
       >
-        <Tabs variant="soft-rounded" colorScheme="purple">
-          <TabList mb="1em">
-            <Tab width="50%" _selected={{ color: "white", bgGradient: "linear(to-r, purple.600, purple.400)", boxShadow: "0 4px 12px rgba(128, 90, 213, 0.4)" }} fontWeight="600" transition="all 0.3s">
+        <Tabs variant="enclosed" colorScheme="green">
+          <TabList mb="1em" borderColor="gray.200">
+            <Tab width="50%" _selected={{ color: "#25D366", borderColor: "gray.200", borderBottomColor: "white" }} fontWeight="600" transition="all 0.3s">
               Login
             </Tab>
-            <Tab width="50%" _selected={{ color: "white", bgGradient: "linear(to-r, pink.600, pink.400)", boxShadow: "0 4px 12px rgba(213, 63, 140, 0.4)" }} fontWeight="600" transition="all 0.3s">
+            <Tab width="50%" _selected={{ color: "#25D366", borderColor: "gray.200", borderBottomColor: "white" }} fontWeight="600" transition="all 0.3s">
               Sign Up
             </Tab>
           </TabList>

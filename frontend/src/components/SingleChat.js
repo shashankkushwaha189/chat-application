@@ -31,6 +31,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const imageInputRef = useRef(null);
   const toast = useToast();
 
+  const [currentSuggestions, setCurrentSuggestions] = useState([]);
+
   const { selectedChat, setSelectedChat, user, setNotification } =
     ChatState();
 
@@ -67,8 +69,9 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     }
   };
 
-  const sendMessage = async (event) => {
-    if (event.key === "Enter" && newMessage) {
+  const sendMessage = async (event, suggestionText) => {
+    const textToSend = suggestionText || newMessage;
+    if ((event.key === "Enter" || event.type === "click") && textToSend) {
       socket.emit("stop typing", selectedChat._id);
       try {
         const config = {
@@ -78,10 +81,11 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           },
         };
         setNewMessage("");
+        setCurrentSuggestions([]);
         const { data } = await axios.post(
           "/api/message",
           {
-            content: newMessage,
+            content: textToSend,
             chatId: selectedChat._id,
           },
           config
@@ -309,6 +313,24 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           // Check for duplicate notification by message _id
           if (!prevNotification.some((n) => n._id === newMessageRecieved._id)) {
             setFetchAgain((prev) => !prev);
+            
+            // Show toast notification popup
+            toast({
+              title: `New Message from ${
+                newMessageRecieved.chat.isGroupChat
+                  ? newMessageRecieved.chat.chatName
+                  : newMessageRecieved.sender.name
+              }`,
+              description: newMessageRecieved.messageType !== "text" && newMessageRecieved.messageType 
+                ? newMessageRecieved.messageType.charAt(0).toUpperCase() + newMessageRecieved.messageType.slice(1) + " received"
+                : newMessageRecieved.content.length > 30 ? newMessageRecieved.content.substring(0, 30) + '...' : newMessageRecieved.content,
+              status: "info",
+              duration: 5000,
+              isClosable: true,
+              position: "top-right",
+              variant: "solid",
+            });
+
             return [newMessageRecieved, ...prevNotification];
           }
           return prevNotification;
@@ -316,6 +338,13 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       } else {
         setFetchAgain((prev) => !prev);
         setMessages((prevMessages) => [...prevMessages, newMessageRecieved]);
+        console.log("INCOMING MESSAGE PAYLOAD:", newMessageRecieved);
+
+        if (newMessageRecieved.suggestedReplies && newMessageRecieved.suggestedReplies.length > 0) {
+          setCurrentSuggestions(newMessageRecieved.suggestedReplies);
+        } else {
+          setCurrentSuggestions([]);
+        }
       }
     });
 
@@ -361,16 +390,19 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       {selectedChat ? (
         <>
           <Box
-            fontSize={{ base: "24px", md: "30px" }}
-            pb={3}
+            fontSize={{ base: "24px", md: "28px" }}
+            py={3}
             px={4}
             w="100%"
             fontFamily="Inter"
-            fontWeight="bold"
+            fontWeight="600"
             display="flex"
             justifyContent={{ base: "space-between" }}
             alignItems="center"
-            color="purple.700"
+            color="black"
+            bg="#f0f2f5"
+            borderBottom="1px solid"
+            borderColor="gray.200"
             flexShrink={0}
           >
             <Box display="flex" alignItems="center" gap={2}>
@@ -431,16 +463,11 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
             display="flex"
             flexDir="column"
             p={3}
-            bg="rgba(255, 255, 255, 0.5)"
-            backdropFilter="blur(20px)"
+            bg="#efeae2"
             w="100%"
             flex="1"
-            borderRadius="2xl"
             overflow="hidden"
             overflowX="hidden"
-            borderWidth="1px"
-            borderColor="whiteAlpha.800"
-            boxShadow="0 4px 15px rgba(0, 0, 0, 0.05), inset 0 2px 10px rgba(255, 255, 255, 0.5)"
           >
             {loading ? (
               <Spinner
@@ -449,7 +476,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                 h={20}
                 alignSelf="center"
                 margin="auto"
-                color="purple.500"
+                color="green.500"
               />
             ) : (
               <Box
@@ -469,6 +496,33 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
               </Box>
             )}
 
+            {currentSuggestions.length > 0 && (
+              <Box display="flex" gap={2} mb={2} overflowX="auto" className="suggestions-container" pl={2} pb={2}>
+                {currentSuggestions.map((suggestion, idx) => (
+                  <Box
+                    key={idx}
+                    as="button"
+                    bg="white"
+                    color="gray.700"
+                    px={4}
+                    py={2}
+                    borderRadius="full"
+                    fontSize="sm"
+                    fontWeight="medium"
+                    borderWidth="1px"
+                    borderColor="gray.300"
+                    _hover={{ bg: "gray.50", transform: "scale(1.02)" }}
+                    transition="all 0.2s"
+                    onClick={(e) => sendMessage({ type: "click", key: "Enter" }, suggestion)}
+                    whiteSpace="nowrap"
+                    boxShadow="sm"
+                  >
+                    {suggestion}
+                  </Box>
+                ))}
+              </Box>
+            )}
+
             <FormControl
               onKeyDown={sendMessage}
               id="message-input"
@@ -480,7 +534,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                   <TypingIndicator />
                 </Box>
               )}
-              <Box display="flex" gap={3} alignItems="center" bg="rgba(255, 255, 255, 0.7)" backdropFilter="blur(20px)" p={2} borderRadius="full" borderWidth="1px" borderColor="whiteAlpha.800" boxShadow="0 8px 24px rgba(31, 38, 135, 0.05)">
+              <Box display="flex" gap={3} alignItems="center" bg="#f0f2f5" p={2} borderRadius="xl" borderWidth="1px" borderColor="gray.300" mt={2}>
                 <Input
                   variant="unstyled"
                   placeholder={isRecording ? "Recording..." : "Type a message..."}
@@ -499,7 +553,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                       as={IconButton}
                       icon={<i className="fas fa-plus"></i>}
                       variant="ghost"
-                      colorScheme="purple"
+                      color="gray.500"
+                      _hover={{ bg: "gray.200", color: "gray.700" }}
                       size="md"
                       isDisabled={mediaLoading || isRecording}
                     />
@@ -550,11 +605,12 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                   aria-label={isRecording ? "Stop recording" : "Send message"}
                   icon={mediaLoading ? <Spinner size="xs" /> : (isRecording ? <FaStop /> : <i className="fas fa-paper-plane"></i>)}
                   onClick={() => isRecording ? stopRecording() : sendMessage({ key: "Enter" })}
-                  colorScheme={isRecording ? "red" : "purple"}
+                  bg={isRecording ? "red.500" : "#25D366"}
+                  color="white"
                   borderRadius="full"
                   size="md"
                   transition="all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)"
-                  _hover={{ transform: "scale(1.05)", boxShadow: "0 4px 12px rgba(128, 90, 213, 0.4)" }}
+                  _hover={{ transform: "scale(1.05)", bg: isRecording ? "red.600" : "#1DA851" }}
                   isDisabled={mediaLoading}
                 />
               </Box>
@@ -564,7 +620,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       ) : (
         <Box display="flex" alignItems="center" justifyContent="center" h="100%" flexDir="column" gap={4}>
           <Box boxSize="200px" opacity={0.6} transition="all 0.5s" _hover={{ opacity: 1, transform: "scale(1.05)" }}>
-            <i className="fas fa-comments" style={{ fontSize: "150px", color: "#805AD5" }}></i>
+            <i className="fas fa-comments" style={{ fontSize: "150px", color: "#CBD5E0" }}></i>
           </Box>
           <Text
             fontSize={{ base: "xl", md: "3xl" }}
@@ -572,7 +628,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
             fontFamily="Inter"
             textAlign="center"
             px={4}
-            color="purple.400"
+            color="gray.500"
           >
             Select a conversation to start chatting
           </Text>

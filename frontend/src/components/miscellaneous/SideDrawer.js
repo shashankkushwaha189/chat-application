@@ -113,13 +113,11 @@ const SideDrawer = ({ onOpenChatList }) => {
         display="flex"
         justifyContent="space-between"
         alignItems="center"
-        bg="rgba(255, 255, 255, 0.4)"
-        backdropFilter="blur(20px) saturate(180%)"
+        bg="white"
         w="100%"
         p={{ base: "8px 10px", md: "10px 15px" }}
         borderBottomWidth="1px"
-        borderColor="whiteAlpha.600"
-        boxShadow="0 8px 32px rgba(31, 38, 135, 0.1)"
+        borderColor="gray.200"
         transition="all 0.3s ease"
         position="relative"
         zIndex="10"
@@ -130,8 +128,8 @@ const SideDrawer = ({ onOpenChatList }) => {
             icon={<HamburgerIcon />}
             onClick={onOpenChatList}
             variant="ghost"
-            color="white"
-            _hover={{ bg: "rgba(255,255,255,0.2)" }}
+            color="black"
+            _hover={{ bg: "gray.100" }}
             size="sm"
             aria-label="Open Chat List"
           />
@@ -140,8 +138,8 @@ const SideDrawer = ({ onOpenChatList }) => {
               variant="ghost"
               onClick={onOpen}
               leftIcon={<LuSearch />}
-              color="white"
-              _hover={{ bg: "rgba(255,255,255,0.2)" }}
+              color="black"
+              _hover={{ bg: "gray.100" }}
               fontSize={{ base: "xs", md: "md" }}
               size={{ base: "sm", md: "md" }}
             >
@@ -156,9 +154,7 @@ const SideDrawer = ({ onOpenChatList }) => {
           fontFamily="Inter"
           fontWeight="900"
           letterSpacing="tight"
-          bgGradient="linear(to-r, purple.700, purple.500)"
-          bgClip="text"
-          textShadow="0px 1px 2px rgba(0,0,0,0.1)"
+          color="#128C7E"
         >
           Chat -X
         </Text>
@@ -178,7 +174,7 @@ const SideDrawer = ({ onOpenChatList }) => {
                   {notification.length}
                 </Badge>
               )}
-              <LuBell fontSize="2xl" m={1} color="white" _hover={{ color: "purple.200" }} transition="all 0.2s" />
+              <LuBell fontSize="2xl" m={1} color="black" _hover={{ color: "gray.600" }} transition="all 0.2s" />
             </MenuButton>
             <MenuList pl={2} borderColor="purple.100" boxShadow="lg" color="black">
               {!notification.length && <MenuItem _hover={{ bg: "transparent" }} cursor="default">No New Messages</MenuItem>}

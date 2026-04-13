@@ -11,6 +11,7 @@ import {
 import axios from "axios";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 
 const Signup = () => {
   const [show, setShow] = useState(false);
@@ -153,7 +154,7 @@ const Signup = () => {
           h="45px"
           borderRadius="lg"
           borderWidth="2px"
-          _focus={{ borderColor: "purple.500", boxShadow: "0 0 0 1px purple.500" }}
+          _focus={{ borderColor: "green.500", boxShadow: "0 0 0 1px #38A169" }}
           transition="all 0.2s"
           onChange={(e) => setName(e.target.value)}
         />
@@ -168,7 +169,7 @@ const Signup = () => {
           h="45px"
           borderRadius="lg"
           borderWidth="2px"
-          _focus={{ borderColor: "purple.500", boxShadow: "0 0 0 1px purple.500" }}
+          _focus={{ borderColor: "green.500", boxShadow: "0 0 0 1px #38A169" }}
           transition="all 0.2s"
           onChange={(e) => setEmail(e.target.value)}
         />
@@ -184,13 +185,13 @@ const Signup = () => {
             h="45px"
             borderRadius="lg"
             borderWidth="2px"
-            _focus={{ borderColor: "purple.500", boxShadow: "0 0 0 1px purple.500" }}
+            _focus={{ borderColor: "green.500", boxShadow: "0 0 0 1px #38A169" }}
             transition="all 0.2s"
             onChange={(e) => setPassword(e.target.value)}
           />
-          <InputRightElement width="4.5rem" h="45px">
-            <Button size="sm" onClick={handleClick} variant="ghost" _hover={{ bg: "transparent", color: "purple.600" }}>
-              {show ? "Hide" : "Show"}
+          <InputRightElement width="3rem" h="45px">
+            <Button size="sm" onClick={handleClick} variant="ghost" _hover={{ bg: "transparent", color: "green.600" }}>
+              {show ? <ViewOffIcon boxSize={4} color="gray.500" /> : <ViewIcon boxSize={4} color="gray.500" />}
             </Button>
           </InputRightElement>
         </InputGroup>
@@ -206,13 +207,13 @@ const Signup = () => {
             h="45px"
             borderRadius="lg"
             borderWidth="2px"
-            _focus={{ borderColor: "purple.500", boxShadow: "0 0 0 1px purple.500" }}
+            _focus={{ borderColor: "green.500", boxShadow: "0 0 0 1px #38A169" }}
             transition="all 0.2s"
             onChange={(e) => setConfirmPassword(e.target.value)}
           />
-          <InputRightElement width="4.5rem" h="45px">
-            <Button size="sm" onClick={handleClick} variant="ghost" _hover={{ bg: "transparent", color: "purple.600" }}>
-              {show ? "Hide" : "Show"}
+          <InputRightElement width="3rem" h="45px">
+            <Button size="sm" onClick={handleClick} variant="ghost" _hover={{ bg: "transparent", color: "green.600" }}>
+              {show ? <ViewOffIcon boxSize={4} color="gray.500" /> : <ViewIcon boxSize={4} color="gray.500" />}
             </Button>
           </InputRightElement>
         </InputGroup>
@@ -227,18 +228,18 @@ const Signup = () => {
           h="45px"
           borderRadius="lg"
           borderWidth="2px"
-          _focus={{ borderColor: "purple.500" }}
+          _focus={{ borderColor: "green.500" }}
           onChange={(e) => postDetails(e.target.files[0])}
         />
       </FormControl>
 
       <Button
-        bgGradient="linear(to-r, purple.500, pink.500)"
+        bg="#25D366"
         color="white"
         _hover={{ 
-          bgGradient: "linear(to-r, purple.600, pink.600)",
+          bg: "#1DA851",
           transform: "translateY(-2px)",
-          boxShadow: "lg" 
+          boxShadow: "sm" 
         }}
         _active={{ transform: "translateY(0)" }}
         width="100%"

@@ -101,17 +101,16 @@ const ScrollableChat = ({ messages, setMessages, onDeleteMessage }) => {
               )}
                   <Box
                     style={{
-                      backgroundColor: m.sender._id === user._id ? "#805AD5" : "rgba(255, 255, 255, 0.9)",
-                      color: m.sender._id === user._id ? "white" : "#1A202C",
+                      backgroundColor: m.sender._id === user._id ? "#d9fdd3" : "white",
+                      color: "#111b21",
                       marginLeft: 10,
                       marginTop: isSameUser(messages, m, i, user._id) ? 3 : 10,
-                      borderRadius: m.sender._id === user._id ? "20px 20px 4px 20px" : "20px 20px 20px 4px",
-                      padding: "10px 18px",
+                      borderRadius: m.sender._id === user._id ? "8px 0px 8px 8px" : "0px 8px 8px 8px",
+                      padding: "8px 12px",
                       fontSize: "15px",
-                      fontWeight: "500",
-                      lineHeight: "1.5",
-                      letterSpacing: "-0.01em",
-                      boxShadow: m.sender._id === user._id ? "0 4px 14px rgba(128, 90, 213, 0.3)" : "0 4px 14px rgba(0, 0, 0, 0.05)",
+                      fontWeight: "400",
+                      lineHeight: "1.4",
+                      boxShadow: "0 1px 0.5px rgba(11,20,26,.13)",
                       transition: "all 0.2s",
                       display: "flex",
                       flexDirection: "column",
@@ -123,9 +122,9 @@ const ScrollableChat = ({ messages, setMessages, onDeleteMessage }) => {
                     {selectedChat.isGroupChat && m.sender._id !== user._id && (
                       (!messages[i - 1] || messages[i - 1].sender._id !== m.sender._id) && (
                         <span style={{ 
-                          fontSize: "12px", 
+                          fontSize: "13px", 
                           fontWeight: "bold", 
-                          color: "#805AD5",
+                          color: "#128C7E",
                           marginBottom: "4px"
                         }}>
                           {m.sender?.name}

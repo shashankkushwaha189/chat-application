@@ -49,45 +49,40 @@ const MyChats = ({ fetchAgain, onClose }) => {
 
   return (
     <Box
-      display={{ base: selectedChat ? "none" : "flex", md: "flex" }}
+      display="flex"
       flexDir="column"
       alignItems="center"
       p={{ base: 3, md: 4 }}
-      bg="rgba(255, 255, 255, 0.25)"
-      backdropFilter="blur(20px) saturate(180%)"
+      bg="white"
       w={{ base: "100%", md: "31%" }}
-      borderRadius="3xl"
+      borderRadius="xl"
       borderWidth="1px"
-      borderColor="rgba(255, 255, 255, 0.4)"
-      boxShadow="0 8px 32px rgba(31, 38, 135, 0.1)"
+      borderColor="gray.200"
+      boxShadow="sm"
       overflowY="hidden"
     >
       <Box
         pb={4}
         px={3}
-        fontSize={{ base: "24px", md: "30px" }}
+        fontSize={{ base: "24px", md: "28px" }}
         fontFamily="Inter"
-        fontWeight="bold"
+        fontWeight="600"
         display="flex"
         w="100%"
         justifyContent="space-between"
         alignItems="center"
-        color="purple.700"
+        color="black"
       >
-        My Chats
+        Chats
         <GroupChatModal>
           <Button
             display="flex"
-            fontSize={{ base: "14px", md: "16px", lg: "17px" }}
+            fontSize={{ base: "14px", md: "15px" }}
             rightIcon={<AddIcon />}
-            bgGradient="linear(to-r, purple.500, pink.500)"
+            bg="#25D366"
             color="white"
-            _hover={{ 
-              bgGradient: "linear(to-r, purple.600, pink.600)",
-              transform: "scale(1.05)" 
-            }}
-            transition="all 0.2s"
-            borderRadius="lg"
+            _hover={{ bg: "#1DA851" }}
+            borderRadius="md"
             size="sm"
           >
             New Group
@@ -104,10 +99,10 @@ const MyChats = ({ fetchAgain, onClose }) => {
         borderRadius="xl"
         overflowY="hidden"
       >
-        <Tabs variant="soft-rounded" colorScheme="purple" isFitted w="100%" h="100%" display="flex" flexDir="column">
-          <TabList mb="1em" px={3} pt={2}>
-            <Tab _selected={{ color: "white", bgGradient: "linear(to-r, purple.500, purple.400)", boxShadow: "0 4px 12px rgba(128, 90, 213, 0.4)" }} fontSize="sm" fontWeight="600" transition="all 0.3s" mr={2}>Personal</Tab>
-            <Tab _selected={{ color: "white", bgGradient: "linear(to-r, purple.500, purple.400)", boxShadow: "0 4px 12px rgba(128, 90, 213, 0.4)" }} fontSize="sm" fontWeight="600" transition="all 0.3s">Groups</Tab>
+        <Tabs variant="enclosed" colorScheme="green" isFitted w="100%" h="100%" display="flex" flexDir="column">
+          <TabList mb="1em" px={3} pt={2} borderBottom="1px solid" borderColor="gray.200">
+            <Tab _selected={{ color: "#25D366", borderColor: "gray.200", borderBottomColor: "white" }} fontSize="sm" fontWeight="600">Personal</Tab>
+            <Tab _selected={{ color: "#25D366", borderColor: "gray.200", borderBottomColor: "white" }} fontSize="sm" fontWeight="600">Groups</Tab>
           </TabList>
           <TabPanels flex={1} overflowY="hidden">
             <TabPanel p={0} h="100%">
@@ -169,19 +164,14 @@ const ChatListItem = ({ chat, selectedChat, setSelectedChat, loggedUser, getNoti
         if (onClose) onClose();
       }}
       cursor="pointer"
-      bg={selectedChat === chat ? "purple.500" : "white"}
-      color={selectedChat === chat ? "white" : "black"}
+      bg={selectedChat === chat ? "#e9edef" : "white"}
+      color="black"
       px={4}
-      py={4}
-      borderRadius="2xl"
-      transition="all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)"
-      borderWidth="1px"
-      borderColor={selectedChat === chat ? "purple.400" : "rgba(255, 255, 255, 0.6)"}
-      boxShadow={selectedChat === chat ? "0 10px 20px rgba(128, 90, 213, 0.3)" : "0 2px 10px rgba(0,0,0,0.02)"}
+      py={3}
+      borderBottomWidth="1px"
+      borderColor="gray.100"
       _hover={{
-        bg: selectedChat === chat ? "purple.600" : "rgba(255, 255, 255, 0.8)",
-        transform: "translateY(-2px)",
-        boxShadow: "0 8px 20px rgba(0,0,0,0.06)"
+        bg: "#f5f6f6",
       }}
       display="flex"
       justifyContent="space-between"
@@ -191,8 +181,8 @@ const ChatListItem = ({ chat, selectedChat, setSelectedChat, loggedUser, getNoti
         <Box 
           p={2} 
           borderRadius="full" 
-          bg={selectedChat === chat ? "whiteAlpha.300" : "purple.50"}
-          color={selectedChat === chat ? "white" : "purple.500"}
+          bg="gray.100"
+          color="gray.600"
         >
           {chat.isGroupChat ? <FaUsers size={18} /> : <FaUser size={18} />}
         </Box>
