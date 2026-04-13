@@ -31,8 +31,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const imageInputRef = useRef(null);
   const toast = useToast();
 
-  const [currentSuggestions, setCurrentSuggestions] = useState([]);
-
   const { selectedChat, setSelectedChat, user, setNotification } =
     ChatState();
 
@@ -69,9 +67,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     }
   };
 
-  const sendMessage = async (event, suggestionText) => {
-    const textToSend = suggestionText || newMessage;
-    if ((event.key === "Enter" || event.type === "click") && textToSend) {
+  const sendMessage = async (event) => {
+    if ((event.key === "Enter" || event.type === "click") && newMessage) {
       socket.emit("stop typing", selectedChat._id);
       try {
         const config = {
@@ -81,11 +78,10 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           },
         };
         setNewMessage("");
-        setCurrentSuggestions([]);
         const { data } = await axios.post(
           "/api/message",
           {
-            content: textToSend,
+            content: newMessage,
             chatId: selectedChat._id,
           },
           config
@@ -339,12 +335,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         setFetchAgain((prev) => !prev);
         setMessages((prevMessages) => [...prevMessages, newMessageRecieved]);
         console.log("INCOMING MESSAGE PAYLOAD:", newMessageRecieved);
-
-        if (newMessageRecieved.suggestedReplies && newMessageRecieved.suggestedReplies.length > 0) {
-          setCurrentSuggestions(newMessageRecieved.suggestedReplies);
-        } else {
-          setCurrentSuggestions([]);
-        }
       }
     });
 
@@ -493,33 +483,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                     }
                   }}
                 />
-              </Box>
-            )}
-
-            {currentSuggestions.length > 0 && (
-              <Box display="flex" gap={2} mb={2} overflowX="auto" className="suggestions-container" pl={2} pb={2}>
-                {currentSuggestions.map((suggestion, idx) => (
-                  <Box
-                    key={idx}
-                    as="button"
-                    bg="white"
-                    color="gray.700"
-                    px={4}
-                    py={2}
-                    borderRadius="full"
-                    fontSize="sm"
-                    fontWeight="medium"
-                    borderWidth="1px"
-                    borderColor="gray.300"
-                    _hover={{ bg: "gray.50", transform: "scale(1.02)" }}
-                    transition="all 0.2s"
-                    onClick={(e) => sendMessage({ type: "click", key: "Enter" }, suggestion)}
-                    whiteSpace="nowrap"
-                    boxShadow="sm"
-                  >
-                    {suggestion}
-                  </Box>
-                ))}
               </Box>
             )}
 

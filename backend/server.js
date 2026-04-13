@@ -4,7 +4,6 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 
 const { chats } = require('./data/data');
-const { GoogleGenerativeAI } = require("@google/generative-ai");
 const connectDB = require('./config/db');
 const userRoutes = require("./routes/userRoutes");
 const chatRoutes = require("./routes/chatRoutes");
@@ -61,24 +60,6 @@ const server = app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
 
-const ai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "YOUR_API_KEY");
-
-async function generateSmartReplies(incomingMessage) {
-  try {
-    const model = ai.getGenerativeModel({ model: "gemini-flash-latest" });
-    const prompt = `Generate 3 short, conversational, and natural replies to the following message. 
-    Strictly format the output as a JSON array of strings. Do not include markdown formatting.
-    Message: "${incomingMessage}"`;
-    const result = await model.generateContent(prompt);
-    let text = result.response.text();
-    text = text.replace(/```json/gi, "").replace(/```/g, "").trim();
-    return JSON.parse(text); 
-  } catch (err) {
-    console.error("Error generating smart replies:", err.message);
-    return [];
-  }
-}
-
 const io = require("socket.io")(server, {
   pingInterval: 60000,
   cors: {
@@ -119,29 +100,10 @@ io.on("connection", (socket) => {
       return;
     }
 
-    let suggestions = [];
-    if (newMessageRecieved.content && newMessageRecieved.content.trim().length > 0) {
-      chat.users.forEach((user) => {
-        if (user._id === newMessageRecieved.sender._id) return;
-        io.to(user._id).emit("typing");
-      });
-
-      suggestions = await generateSmartReplies(newMessageRecieved.content);
-
-      chat.users.forEach((user) => {
-        if (user._id === newMessageRecieved.sender._id) return;
-        io.to(user._id).emit("stop typing");
-      });
-    }
-
-    const messageWithSuggestions = {
-      ...newMessageRecieved,
-      suggestedReplies: suggestions
-    };
-
+    // Instantly emit the message to all users
     chat.users.forEach((user) => {
       if (user._id === newMessageRecieved.sender._id) return;
-      io.to(user._id).emit("message recieved", messageWithSuggestions);
+      io.to(user._id).emit("message recieved", newMessageRecieved);
     });
   });
 
